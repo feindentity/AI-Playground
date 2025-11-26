@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hudson Hawk: Cappuccino Poker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rye&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --hawk-red: #d62828;
+            --hawk-teal: #008080;
+            --noir-black: #0a0a0a;
+            --noir-gray: #1a1a1a;
+            --stark-white: #e0e0e0;
+        }
+
+        /* --- CORE LAYOUT --- */
+        html {
+            height: 100%;
+        }
+
+        body {
+            background-color: var(--noir-black);
+            color: var(--stark-white);
+            font-family: 'Share Tech Mono', monospace;
+            background-image: radial-gradient(circle at 50% 30%, #222 0%, #000 90%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            /* Bottom padding for scrolling footer */
+            padding-bottom: 160px;
+        }
+
+        .title-font {
+            font-family: 'Rye', serif;
+        }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            /* Top of everything */
+            display: none;
+            /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: #111;
+            border: 2px solid var(--hawk-red);
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(214, 40, 40, 0.3);
+            transform: scale(0.9);
+            animation: popIn 0.2s forwards ease-out;
+        }
+
+        @keyframes popIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* --- CARD MECHANICS --- */
+        .card-container {
+            perspective: 1000px;
+            height: 110px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .card-container {
+                height: 180px;
+            }
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-front {
+            background-color: #f0f0f0;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' opacity='0.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E");
+            color: #1a202c;
+            transform: rotateY(180deg);
+            border: 2px solid #fff;
+            outline: 1px solid #444;
+        }
+
+        .card-back {
+            background-color: #111;
+            background-image: repeating-linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a), repeating-linear-gradient(45deg, #1a1a1a 25%, #111 25%, #111 75%, #111 75%, #111);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+            border: 2px solid #333;
+            outline: 2px solid var(--hawk-red);
+            z-index: 2;
+        }
+
+        .card-back svg {
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5));
+            opacity: 0.9;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .card-back svg {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .card.held {
+            transform: rotateY(180deg) translateY(-12px);
+            box-shadow: 0 0 15px rgba(214, 40, 40, 0.6);
+        }
+
+        .held-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%) rotateY(180deg);
+            background-color: var(--hawk-red);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 2px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            z-index: 20;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            border: 1px solid #000;
+            letter-spacing: 1px;
+        }
+
+        .card.held .held-badge {
+            opacity: 1;
+        }
+
+        .paytable-row.active {
+            background-color: rgba(214, 40, 40, 0.85);
+            color: white;
+            text-shadow: 1px 1px 0px black;
+            font-weight: bold;
+            animation: pulse-bg 1.0s infinite alternate;
+            border-left: 4px solid white;
+        }
+
+        @keyframes pulse-bg {
+            0% {
+                background-color: rgba(214, 40, 40, 0.7);
+            }
+
+            100% {
+                background-color: rgba(214, 40, 40, 1.0);
+            }
+        }
+
+        .btn-action {
+            transition: all 0.1s;
+            text-shadow: 1px 1px 0px black;
+        }
+
+        .btn-action:active {
+            transform: scale(0.98);
+        }
+
+        .suit-red {
+            color: var(--hawk-red);
+        }
+
+        .suit-black {
+            color: black;
+        }
+
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 50%), radial-gradient(circle, transparent 40%, black 150%);
+            z-index: 40;
+            background-size: 100% 3px, 100% 100%;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .song-timer-container {
+            width: 100%;
+            height: 6px;
+            background-color: #111;
+            border: 1px solid #333;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .song-timer-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--hawk-teal), var(--hawk-red));
+            transition: width 0.1s linear;
+        }
+
+        .card-text-lg {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .card-text-sm {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        @media (min-width: 768px) {
+            .card-text-lg {
+                font-size: 4rem;
+            }
+
+            .card-text-sm {
+                font-size: 1.5rem;
+            }
+        }
+
+        .border-hawk-red-thick {
+            border-bottom: 3px solid var(--hawk-red);
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            background: transparent;
+            border: none;
+            color: white;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body class="crt">
+
+    <!-- MODAL: PAWN SHOP -->
+    <div id="pawn-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="text-2xl text-hawk-teal title-font mb-2">INSUFFICIENT FUNDS</h2>
+            <p class="text-gray-400 text-sm mb-6 tracking-widest">YOU'RE TAPPED OUT, HAWK.</p>
+
+            <div class="bg-neutral-900 p-4 border border-gray-800 mb-6">
+                <p class="text-hawk-red text-xs uppercase mb-2">ITEM TO PAWN:</p>
+                <p id="pawn-item-name" class="text-white font-bold text-lg mb-1">THE SFORZA HORSE MODEL</p>
+                <p class="text-hawk-teal text-2xl font-bold">+$100.00</p>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="pawnItem()"
+                    class="btn-action w-full py-3 bg-hawk-red text-white font-bold uppercase tracking-widest border border-red-900">
+                    PAWN IT
+                </button>
+                <button onclick="closePawnShop()" class="text-gray-500 text-xs uppercase hover:text-white underline">
+                    CANCEL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE WRAPPER -->
+    <div class="w-full max-w-4xl mx-auto flex flex-col gap-4">
+
+        <!-- 1. HEADER -->
+        <header
+            class="flex justify-between items-center border-hawk-red-thick bg-black px-4 py-3 rounded-t-sm z-10 shadow-lg shadow-red-900/20">
+            <div class="flex items-center gap-4">
+                <svg class="w-10 h-10 text-hawk-teal drop-shadow-[0_0_5px_rgba(0,128,128,0.5)]" viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path d="M12,2 L2,7 L12,22 L22,7 L12,2 Z M12,5.5 L18,8.5 L12,17.5 L6,8.5 L12,5.5 Z" opacity="0.8" />
+                </svg>
+                <div>
+                    <h1
+                        class="text-2xl md:text-4xl title-font text-hawk-teal tracking-wider drop-shadow-[2px_2px_0_black]">
+                        HUDSON HAWK</h1>
+                    <p class="text-[11px] text-gray-400 tracking-[0.2em] uppercase">The Rome Heist // 3-Deck</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-[11px] text-hawk-teal uppercase tracking-widest mb-0">Share Point</div>
+                <div class="text-3xl text-hawk-red font-bold drop-shadow-[0_0_8px_rgba(214,40,40,0.5)]">$<span
+                        id="score">500</span></div>
+            </div>
+        </header>
+
+        <!-- 2. PAYTABLE -->
+        <div
+            class="w-full bg-neutral-900 border border-gray-800 p-2 text-xs md:text-sm shadow-xl relative overflow-hidden z-10">
+            <div class="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
+                <svg class="w-24 h-24 text-hawk-teal" viewBox="0 0 24 24" fill="currentColor">
+                    <path transform="rotate(-15, 12, 12)"
+                        d="M2,17 L22,17 L22,19 L2,19 L2,17 Z M4,12 L20,12 C20.55,12 21,12.45 21,13 L21,16 L3,16 L3,13 C3,12.45 3.45,12 4,12 Z M6,6 L18,6 C19.1,6 20,6.9 20,8 L20,11 L4,11 L4,8 C4,6.9 4.9,6 6,6 Z" />
+                </svg>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-1 relative z-10">
+                <div
+                    class="col-span-2 md:col-span-5 flex justify-between border-b border-gray-800 pb-1 mb-1 text-hawk-teal uppercase tracking-widest text-[10px] md:text-xs font-bold">
+                    <span>Classification</span>
+                    <span>Reward</span>
+                </div>
+                <div id="pt-5k"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>5 OF
+                        A KIND</span><span class="font-bold">800</span></div>
+                <div id="pt-rf"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent">
+                    <span>ROYAL FLUSH</span><span class="font-bold">500</span></div>
+                <div id="pt-sf"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>STR.
+                        FLUSH</span><span class="font-bold">100</span></div>
+                <div id="pt-4k"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>4 OF
+                        A KIND</span><span class="font-bold">50</span></div>
+                <div id="pt-fh"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>FULL
+                        HOUSE</span><span class="font-bold">20</span></div>
+                <div id="pt-fl"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent">
+                    <span>FLUSH</span><span class="font-bold">10</span></div>
+                <div id="pt-st"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent">
+                    <span>STRAIGHT</span><span class="font-bold">8</span></div>
+                <div id="pt-3k"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>3 OF
+                        A KIND</span><span class="font-bold">6</span></div>
+                <div id="pt-2p"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>TWO
+                        PAIR</span><span class="font-bold">4</span></div>
+                <div id="pt-jb"
+                    class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>J OR
+                        BETTER</span><span class="font-bold">2</span></div>
+            </div>
+        </div>
+
+        <!-- 3. MESSAGE BOX -->
+        <div
+            class="w-full h-12 flex items-center justify-center text-center bg-black/50 border-y border-hawk-teal py-1 relative z-10">
+            <span id="message-box"
+                class="text-sm md:text-xl text-hawk-teal font-bold tracking-widest animate-pulse">WELCOME TO
+                ROME.</span>
+        </div>
+
+        <!-- 4. CARDS -->
+        <div class="w-full grid grid-cols-5 gap-2 md:gap-4 px-1 md:px-8 relative z-10">
+            <div class="card-container" onclick="cardClick(0)">
+                <div class="card" id="card-0">
+                    <div class="card-face card-back"><svg class="w-3/4 h-3/4 text-hawk-teal" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path
+                                d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z" />
+                        </svg></div>
+                    <div class="card-face card-front"></div>
+                    <div class="held-badge">HELD</div>
+                </div>
+            </div>
+            <div class="card-container" onclick="cardClick(1)">
+                <div class="card" id="card-1">
+                    <div class="card-face card-back"><svg class="w-3/4 h-3/4 text-hawk-teal" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path
+                                d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z" />
+                        </svg></div>
+                    <div class="card-face card-front"></div>
+                    <div class="held-badge">HELD</div>
+                </div>
+            </div>
+            <div class="card-container" onclick="cardClick(2)">
+                <div class="card" id="card-2">
+                    <div class="card-face card-back"><svg class="w-3/4 h-3/4 text-hawk-teal" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path
+                                d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z" />
+                        </svg></div>
+                    <div class="card-face card-front"></div>
+                    <div class="held-badge">HELD</div>
+                </div>
+            </div>
+            <div class="card-container" onclick="cardClick(3)">
+                <div class="card" id="card-3">
+                    <div class="card-face card-back"><svg class="w-3/4 h-3/4 text-hawk-teal" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path
+                                d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z" />
+                        </svg></div>
+                    <div class="card-face card-front"></div>
+                    <div class="held-badge">HELD</div>
+                </div>
+            </div>
+            <div class="card-container" onclick="cardClick(4)">
+                <div class="card" id="card-4">
+                    <div class="card-face card-back"><svg class="w-3/4 h-3/4 text-hawk-teal" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path
+                                d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z" />
+                        </svg></div>
+                    <div class="card-face card-front"></div>
+                    <div class="held-badge">HELD</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. FOOTER CONTROLS -->
+        <footer
+            class="w-full bg-black border-t-2 border-hawk-red shadow-[0_-5px_15px_rgba(0,0,0,0.5)] p-3 rounded-b-lg z-10 mt-2">
+            <div class="flex flex-col gap-3">
+
+                <div class="flex justify-between items-center gap-4">
+                    <div class="flex items-center gap-2 bg-neutral-900 p-2 rounded border border-gray-800 shrink-0">
+                        <button onclick="changeBet(-1)"
+                            class="w-10 h-10 rounded bg-black border border-hawk-teal hover:bg-hawk-teal/20 text-hawk-teal font-bold text-xl transition-colors">-</button>
+                        <div class="w-14 relative">
+                            <input type="number" id="bet-input" value="5" min="1" max="100"
+                                class="bg-transparent text-white text-xl font-bold text-center w-full focus:outline-none focus:border-b-2 focus:border-hawk-teal"
+                                onchange="manualBetChange()">
+                        </div>
+                        <button onclick="changeBet(1)"
+                            class="w-10 h-10 rounded bg-black border border-hawk-teal hover:bg-hawk-teal/20 text-hawk-teal font-bold text-xl transition-colors">+</button>
+                    </div>
+
+                    <div class="flex-grow px-2">
+                        <div class="flex justify-end text-[10px] text-hawk-teal mb-0.5 tracking-widest uppercase">
+                            <span>"SWINGING ON A STAR"</span>
+                        </div>
+                        <div class="song-timer-container h-2">
+                            <div id="song-bar" class="song-timer-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="action-btn" onclick="handleAction()"
+                    class="btn-action w-full py-4 rounded-sm bg-hawk-red hover:bg-red-700 text-white font-bold text-2xl uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(214,40,40,0.4)] border-2 border-red-900">
+                    START HEIST
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- GAME CONSTANTS & STATE ---
+        const SUITS = ['♠', '♥', '♣', '♦'];
+        const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        const VALUES = { '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
+
+        const WIN_NAMES = {
+            '5k': '5 OF A KIND', 'rf': 'ROYAL FLUSH', 'sf': 'STRAIGHT FLUSH', '4k': '4 OF A KIND',
+            'fh': 'FULL HOUSE', 'fl': 'FLUSH', 'st': 'STRAIGHT', '3k': '3 OF A KIND',
+            '2p': 'TWO PAIR', 'jb': 'JACKS OR BETTER'
+        };
+
+        // Items to pawn when broke
+        const PAWN_ITEMS = [
+            "THE SFORZA HORSE MODEL",
+            "LEONARDO'S SKETCHBOOK",
+            "DARWIN MAYFLOWER'S DOG",
+            "A SINGING TELEGRAM",
+            "TOMMY FIVE-TONE'S TRUMPET",
+            "THE GOLD MACHINE",
+            "A BAG OF CAPPUCCINO BEANS"
+        ];
+
+        let deck = [];
+        let hand = [];
+        let gameState = 'IDLE';
+        let bankroll = 500;
+        let bet = 5;
+
+        const QUOTES_WIN = ["BUNNY, BALL, BALL!", "GOODY, GOODY!", "TIMING IS EVERYTHING.", "CAPPUCCINO SECURED."];
+        const QUOTES_LOSS = ["NO SWINGING TODAY.", "CIA NOT AMUSED.", "SLOPPY WORK, HAWK."];
+
+        function createDeck() {
+            let newDeck = [];
+            for (let d = 0; d < 3; d++) {
+                for (let s of SUITS) {
+                    for (let r of RANKS) {
+                        newDeck.push({ rank: r, suit: s, value: VALUES[r], id: `${d}-${r}-${s}`, isRed: (s === '♥' || s === '♦') });
+                    }
+                }
+            }
+            return shuffle(newDeck);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function updateBankroll() {
+            const el = document.getElementById('score');
+            el.innerText = bankroll;
+            el.parentElement.classList.add('text-white');
+            setTimeout(() => el.parentElement.classList.remove('text-white'), 200);
+        }
+
+        function setStatus(msg, type = 'neutral') {
+            const box = document.getElementById('message-box');
+            let colorClass = 'text-hawk-teal';
+            if (type === 'win' || type === 'action') colorClass = 'text-hawk-red';
+            if (type === 'loss') colorClass = 'text-gray-400';
+            box.innerHTML = `<span class="text-xs md:text-xl ${colorClass} font-bold tracking-widest drop-shadow-[1px_1px_0_black] uppercase">${msg}</span>`;
+        }
+
+        function renderCard(index, cardObj) {
+            const cardEl = document.getElementById(`card-${index}`);
+            const front = cardEl.querySelector('.card-front');
+            let content = `
+                <div class="absolute top-1 left-1 card-text-sm ${cardObj.isRed ? 'suit-red' : 'suit-black'}">${cardObj.rank}${cardObj.suit}</div>
+                <div class="card-text-lg ${cardObj.isRed ? 'suit-red' : 'suit-black'}">${cardObj.suit}</div>
+                <div class="absolute bottom-1 right-1 card-text-sm ${cardObj.isRed ? 'suit-red' : 'suit-black'} transform rotate-180">${cardObj.rank}${cardObj.suit}</div>
+            `;
+            front.innerHTML = content;
+        }
+
+        function flipCard(index, faceUp) {
+            const cardEl = document.getElementById(`card-${index}`);
+            if (faceUp) { cardEl.classList.add('flipped'); } else { cardEl.classList.remove('flipped'); }
+        }
+
+        function toggleHold(index) {
+            if (gameState !== 'DRAW') return;
+            const cardEl = document.getElementById(`card-${index}`);
+            cardEl.classList.toggle('held');
+            hand[index].held = !hand[index].held;
+        }
+
+        function updateBetDisplay() {
+            document.getElementById('bet-input').value = bet;
+            resetPaytableHighlight();
+        }
+
+        function changeBet(amt) {
+            if (gameState !== 'IDLE' && gameState !== 'WIN' && gameState !== 'LOSE') return;
+            bet += amt;
+            if (bet < 1) bet = 1;
+            if (bet > 100) bet = 100;
+            updateBetDisplay();
+        }
+
+        function manualBetChange() {
+            const input = document.getElementById('bet-input');
+            let val = parseInt(input.value);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > 100) val = 100;
+            bet = val;
+            input.value = bet;
+            resetPaytableHighlight();
+        }
+
+        function cardClick(index) {
+            if (gameState === 'DRAW') { toggleHold(index); }
+        }
+
+        function handleAction() {
+            const btn = document.getElementById('action-btn');
+
+            if (gameState === 'IDLE' || gameState === 'WIN' || gameState === 'LOSE') {
+                if (bankroll < bet) {
+                    showPawnShop(); // Trigger Pawn Shop if broke
+                    return;
+                }
+                bankroll -= bet;
+                updateBankroll();
+                startDeal();
+                btn.innerText = "EXECUTE";
+                btn.classList.add('bg-red-800', 'border-red-950');
+            } else if (gameState === 'DRAW') {
+                executeDraw();
+                btn.innerText = "START HEIST";
+                btn.classList.remove('bg-red-800', 'border-red-950');
+            }
+        }
+
+        // --- PAWN SHOP LOGIC ---
+        function showPawnShop() {
+            const modal = document.getElementById('pawn-modal');
+            const itemText = document.getElementById('pawn-item-name');
+
+            // Pick random item
+            const item = PAWN_ITEMS[Math.floor(Math.random() * PAWN_ITEMS.length)];
+            itemText.innerText = item;
+
+            modal.style.display = 'flex';
+        }
+
+        function pawnItem() {
+            bankroll += 100;
+            updateBankroll();
+            closePawnShop();
+            setStatus("FUNDS SECURED. RESUME MISSION.", "action");
+        }
+
+        function closePawnShop() {
+            document.getElementById('pawn-modal').style.display = 'none';
+        }
+
+        function startDeal() {
+            gameState = 'DEAL';
+            deck = createDeck();
+            hand = [];
+            document.querySelectorAll('.card').forEach(c => { c.classList.remove('flipped', 'held'); });
+            resetPaytableHighlight();
+            startTimerAnimation();
+            setStatus("DEALING...", "action");
+
+            setTimeout(() => {
+                for (let i = 0; i < 5; i++) {
+                    let card = deck.pop();
+                    card.held = false;
+                    hand.push(card);
+                    renderCard(i, card);
+                    setTimeout(() => flipCard(i, true), i * 120);
+                }
+                setTimeout(() => {
+                    gameState = 'DRAW';
+                    setStatus("SELECT HOLDS", "action");
+                }, 800);
+            }, 200);
+        }
+
+        function executeDraw() {
+            gameState = 'EVALUATING';
+            setStatus("EXECUTING...", "action");
+            let delay = 0;
+            for (let i = 0; i < 5; i++) {
+                if (!hand[i].held) {
+                    delay += 80;
+                    setTimeout(() => {
+                        flipCard(i, false);
+                        setTimeout(() => {
+                            let newCard = deck.pop();
+                            newCard.held = false;
+                            hand[i] = newCard;
+                            renderCard(i, newCard);
+                            flipCard(i, true);
+                        }, 250);
+                    }, delay);
+                } else {
+                    document.getElementById(`card-${i}`).classList.remove('held');
+                }
+            }
+            setTimeout(() => { evaluateHand(); }, delay + 600);
+        }
+
+        function evaluateHand() {
+            const sorted = [...hand].sort((a, b) => a.value - b.value);
+            const rankCounts = {};
+            const suitCounts = {};
+            sorted.forEach(c => { rankCounts[c.rank] = (rankCounts[c.rank] || 0) + 1; suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1; });
+            const rValues = Object.values(rankCounts);
+            const sValues = Object.values(suitCounts);
+            let isStraight = false;
+            const uniqueValues = [...new Set(sorted.map(c => c.value))].sort((a, b) => a - b);
+            if (uniqueValues.length >= 5) {
+                for (let i = 0; i <= uniqueValues.length - 5; i++) { if (uniqueValues[i + 4] - uniqueValues[i] === 4) isStraight = true; }
+                if (uniqueValues.includes(14) && uniqueValues.includes(2) && uniqueValues.includes(3) && uniqueValues.includes(4) && uniqueValues.includes(5)) { isStraight = true; }
+            }
+            const isFlush = sValues.some(count => count >= 5);
+
+            let winType = null;
+            let winAmount = 0;
+
+            if (rValues.includes(5)) { winType = '5k'; winAmount = bet * 800; }
+            else if (isFlush && isStraight && uniqueValues.includes(10) && uniqueValues.includes(14) && !uniqueValues.includes(9)) { winType = 'rf'; winAmount = bet * 500; }
+            else if (isFlush && isStraight) { winType = 'sf'; winAmount = bet * 100; }
+            else if (rValues.includes(4)) { winType = '4k'; winAmount = bet * 50; }
+            else if (rValues.includes(3) && rValues.includes(2)) { winType = 'fh'; winAmount = bet * 20; }
+            else if (isFlush) { winType = 'fl'; winAmount = bet * 10; }
+            else if (isStraight) { winType = 'st'; winAmount = bet * 8; }
+            else if (rValues.includes(3)) { winType = '3k'; winAmount = bet * 6; }
+            else if (rValues.filter(x => x === 2).length === 2) { winType = '2p'; winAmount = bet * 4; }
+            else if (rValues.includes(2)) {
+                let highPair = false;
+                for (let r in rankCounts) { if (rankCounts[r] === 2 && VALUES[r] >= 11) highPair = true; }
+                if (highPair) { winType = 'jb'; winAmount = bet * 2; }
+            }
+            finishGame(winType, winAmount);
+        }
+
+        function finishGame(winType, amount) {
+            gameState = amount > 0 ? 'WIN' : 'LOSE';
+            stopTimerAnimation();
+            if (amount > 0) {
+                bankroll += amount;
+                updateBankroll();
+                highlightWin(winType);
+                const quote = QUOTES_WIN[Math.floor(Math.random() * QUOTES_WIN.length)];
+                const winName = WIN_NAMES[winType];
+                setStatus(`${winName}! ${quote} [$${amount}]`, 'win'); // UPDATED MESSAGE
+                pulseScreen('win');
+            } else {
+                const quote = QUOTES_LOSS[Math.floor(Math.random() * QUOTES_LOSS.length)];
+                setStatus(quote, 'loss');
+                pulseScreen('loss');
+            }
+        }
+
+        function highlightWin(type) {
+            document.querySelectorAll('.paytable-row').forEach(row => { row.classList.remove('active', 'border-hawk-red'); row.classList.add('border-transparent'); });
+            const row = document.getElementById(`pt-${type}`);
+            if (row) { row.classList.add('active', 'border-hawk-red'); row.classList.remove('border-transparent'); }
+        }
+
+        function resetPaytableHighlight() {
+            document.querySelectorAll('.paytable-row').forEach(row => { row.classList.remove('active', 'border-hawk-red'); row.classList.add('border-transparent'); });
+        }
+
+        function pulseScreen(type) {
+            const color = type === 'win' ? 'rgba(214, 40, 40, 0.4)' : 'rgba(50, 50, 50, 0.4)';
+            document.body.style.boxShadow = `inset 0 0 80px ${color}`;
+            setTimeout(() => { document.body.style.boxShadow = "none"; }, 600);
+        }
+
+        function startTimerAnimation() {
+            const bar = document.getElementById('song-bar');
+            bar.style.width = '0%';
+            bar.style.transition = 'none';
+            void bar.offsetWidth;
+            bar.style.transition = 'width 10s linear';
+            bar.style.width = '100%';
+        }
+
+        function stopTimerAnimation() {
+            const bar = document.getElementById('song-bar');
+            const width = bar.offsetWidth;
+            bar.style.transition = 'none';
+            bar.style.width = width + 'px';
+        }
+    </script>
+</body>
+
+</html>

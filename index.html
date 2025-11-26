@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e0e0e0;
+        }
+
+        .game-card {
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="w-full py-8 px-4 border-b border-white/10 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-white/10 rounded-lg">
+                    <i data-lucide="gamepad-2" class="w-6 h-6 text-white"></i>
+                </div>
+                <h1 class="text-2xl font-black tracking-tighter text-white">AI <span
+                        class="text-neutral-500">PLAYGROUND</span></h1>
+            </div>
+            <a href="https://github.com/google-deepmind" target="_blank"
+                class="text-sm text-neutral-400 hover:text-white transition-colors">
+                Built by Antigravity
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 py-12">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">
+                Experimental <br>
+                <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 gradient-text">Browser
+                    Games</span>
+            </h2>
+            <p class="text-neutral-400 text-lg max-w-2xl mx-auto">
+                A collection of unique web experiences exploring different genres and mechanics.
+                Built with modern web technologies and a focus on aesthetics.
+            </p>
+        </div>
+
+        <!-- Games Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <!-- Game 1: Cita -->
+            <a href="cita/index.html"
+                class="game-card group block bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden hover:border-pink-500/50">
+                <div class="h-48 bg-slate-900 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800"></div>
+                    <div
+                        class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.4),transparent_70%)]">
+                    </div>
+                    <div class="absolute bottom-4 left-4">
+                        <span
+                            class="px-2 py-1 bg-pink-500/20 text-pink-300 text-xs font-bold rounded uppercase tracking-wider border border-pink-500/30">Narrative</span>
+                    </div>
+                    <div
+                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl group-hover:scale-110 transition-transform duration-500">
+                        🕵️‍♀️
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-white mb-2 group-hover:text-pink-400 transition-colors">Caught
+                        Unfaithful</h3>
+                    <p class="text-neutral-400 text-sm leading-relaxed mb-4">
+                        A text-based detective thriller. Gather evidence, interview suspects, and expose the truth in a
+                        high-stakes drama.
+                    </p>
+                    <div class="flex items-center text-pink-400 text-sm font-bold">
+                        Play Now <i data-lucide="arrow-right"
+                            class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Game 2: Hudson -->
+            <a href="hudson/index.html"
+                class="game-card group block bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden hover:border-red-500/50">
+                <div class="h-48 bg-neutral-950 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#222,transparent)]"></div>
+                    <div class="absolute bottom-4 left-4">
+                        <span
+                            class="px-2 py-1 bg-red-500/20 text-red-300 text-xs font-bold rounded uppercase tracking-wider border border-red-500/30">Card
+                            Game</span>
+                    </div>
+                    <div
+                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl group-hover:scale-110 transition-transform duration-500">
+                        🃏
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-white mb-2 group-hover:text-red-400 transition-colors">Hudson Hawk
+                    </h3>
+                    <p class="text-neutral-400 text-sm leading-relaxed mb-4">
+                        A high-stakes poker heist. Manage your bankroll, make strategic bets, and pull off the ultimate
+                        job in Rome.
+                    </p>
+                    <div class="flex items-center text-red-400 text-sm font-bold">
+                        Play Now <i data-lucide="arrow-right"
+                            class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Game 3: Scanners -->
+            <a href="scanners/index.html"
+                class="game-card group block bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden hover:border-green-500/50">
+                <div class="h-48 bg-black relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,255,0,0.05)_25%,rgba(0,255,0,0.05)_50%,transparent_50%,transparent_75%,rgba(0,255,0,0.05)_75%,rgba(0,255,0,0.05)_100%)] bg-[length:20px_20px]">
+                    </div>
+                    <div class="absolute bottom-4 left-4">
+                        <span
+                            class="px-2 py-1 bg-green-500/20 text-green-300 text-xs font-bold rounded uppercase tracking-wider border border-green-500/30">Action</span>
+                    </div>
+                    <div
+                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl group-hover:scale-110 transition-transform duration-500">
+                        📡
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors">Scanner
+                        Dug</h3>
+                    <p class="text-neutral-400 text-sm leading-relaxed mb-4">
+                        Audio-boosted action. Scan enemies to reveal their location and eliminate them before they find
+                        you.
+                    </p>
+                    <div class="flex items-center text-green-400 text-sm font-bold">
+                        Play Now <i data-lucide="arrow-right"
+                            class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-8 border-t border-white/10 text-center text-neutral-500 text-sm">
+        <p>&copy; 2025 AI Playground. All rights reserved.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
