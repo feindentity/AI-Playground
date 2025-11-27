@@ -424,7 +424,7 @@
                 let accessibleCount = 0;
 
                 while (q.length > 0) {
-                    let curr = q.pop();
+                    let curr = q.shift();
                     accessibleCount++;
                     const dirs = [{ r: 0, c: 1 }, { r: 0, c: -1 }, { r: 1, c: 0 }, { r: -1, c: 0 }];
                     for (let d of dirs) {
