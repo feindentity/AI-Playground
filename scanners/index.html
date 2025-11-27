@@ -424,7 +424,7 @@
                 let accessibleCount = 0;
 
                 while (q.length > 0) {
-                    let curr = q.pop();
+                    let curr = q.shift();
                     accessibleCount++;
                     const dirs = [{ r: 0, c: 1 }, { r: 0, c: -1 }, { r: 1, c: 0 }, { r: -1, c: 0 }];
                     for (let d of dirs) {
@@ -746,7 +746,14 @@
                 if (e.dir === 'right') moveX = 1;
 
                 if (!tryMove(e, moveX, moveY, e.speed)) {
-                    const options = ['up', 'down', 'left', 'right'];
+                    const perpendicular = {
+                        'up': ['left', 'right'],
+                        'down': ['left', 'right'],
+                        'left': ['up', 'down'],
+                        'right': ['up', 'down']
+                    };
+                    
+                    const options = perpendicular[e.dir];
                     const validOptions = [];
 
                     options.forEach(opt => {
@@ -764,11 +771,6 @@
                     if (validOptions.length > 0) {
                         e.dir = validOptions[Math.floor(Math.random() * validOptions.length)];
                     } else {
-                        let cx = Math.floor((e.x + ENTITY_SIZE / 2) / TILE_SIZE) * TILE_SIZE + (TILE_SIZE - ENTITY_SIZE) / 2;
-                        let cy = Math.floor((e.y + ENTITY_SIZE / 2) / TILE_SIZE) * TILE_SIZE + (TILE_SIZE - ENTITY_SIZE) / 2;
-                        if (Math.abs(e.x - cx) > 1) e.x += (cx - e.x) * 0.1;
-                        if (Math.abs(e.y - cy) > 1) e.y += (cy - e.y) * 0.1;
-
                         if (e.dir === 'up') e.dir = 'down';
                         else if (e.dir === 'down') e.dir = 'up';
                         else if (e.dir === 'left') e.dir = 'right';
