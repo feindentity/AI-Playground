@@ -11,7 +11,7 @@
 </head>
 
 <body class="bg-black text-white font-sans overflow-hidden">
-    <div id="app" class="flex flex-col h-[100dvh] w-full transition-colors duration-1000">
+    <div id="app" class="flex flex-col h-[100dvh] w-full transition-colors duration-1000 relative">
         <!-- Top Bar -->
         <div
             class="flex-none flex justify-between items-center px-4 py-3 bg-black/40 backdrop-blur-md border-b border-white/10 z-30 h-16">
@@ -107,6 +107,12 @@
         <div
             class="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] z-40 bg-[length:100%_3px,3px_100%] opacity-80">
         </div>
+
+        <!-- Persistent Home Link -->
+        <a href="../index.html"
+            class="absolute bottom-1 right-2 text-[10px] text-gray-600 hover:text-gray-300 z-[60] uppercase tracking-widest transition-colors">
+            Return to Home
+        </a>
     </div>
 
     <!-- Game Over Screen (Hidden by default) -->
@@ -117,6 +123,9 @@
         <button id="restart-btn" class="px-6 py-3 bg-pink-600 hover:bg-pink-700 rounded-lg font-bold transition-all">
             New Case
         </button>
+        <a href="../index.html" class="mt-4 text-gray-500 hover:text-white text-sm underline transition-colors">
+            Return to Home
+        </a>
     </div>
 
     <script src="script.js"></script>

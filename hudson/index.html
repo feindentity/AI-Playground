@@ -301,6 +301,9 @@
                 <button onclick="closePawnShop()" class="text-gray-500 text-xs uppercase hover:text-white underline">
                     CANCEL
                 </button>
+                <a href="../index.html" class="text-gray-500 text-xs uppercase hover:text-white underline mt-2 block">
+                    GIVE UP & RETURN HOME
+                </a>
             </div>
         </div>
     </div>
@@ -350,7 +353,8 @@
                         A KIND</span><span class="font-bold">800</span></div>
                 <div id="pt-rf"
                     class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent">
-                    <span>ROYAL FLUSH</span><span class="font-bold">500</span></div>
+                    <span>ROYAL FLUSH</span><span class="font-bold">500</span>
+                </div>
                 <div id="pt-sf"
                     class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>STR.
                         FLUSH</span><span class="font-bold">100</span></div>
@@ -362,10 +366,12 @@
                         HOUSE</span><span class="font-bold">20</span></div>
                 <div id="pt-fl"
                     class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent">
-                    <span>FLUSH</span><span class="font-bold">10</span></div>
+                    <span>FLUSH</span><span class="font-bold">10</span>
+                </div>
                 <div id="pt-st"
                     class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent">
-                    <span>STRAIGHT</span><span class="font-bold">8</span></div>
+                    <span>STRAIGHT</span><span class="font-bold">8</span>
+                </div>
                 <div id="pt-3k"
                     class="paytable-row flex justify-between px-2 py-1 rounded border-l-2 border-transparent"><span>3 OF
                         A KIND</span><span class="font-bold">6</span></div>
@@ -477,6 +483,12 @@
                     class="btn-action w-full py-4 rounded-sm bg-hawk-red hover:bg-red-700 text-white font-bold text-2xl uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(214,40,40,0.4)] border-2 border-red-900">
                     START HEIST
                 </button>
+            </div>
+            <div class="text-center mt-4">
+                <a href="../index.html"
+                    class="text-hawk-teal text-xs uppercase tracking-widest hover:text-white transition-colors">
+                    &lt; RETURN TO HOME
+                </a>
             </div>
         </footer>
 
@@ -694,9 +706,13 @@
             const sorted = [...hand].sort((a, b) => a.value - b.value);
             const rankCounts = {};
             const suitCounts = {};
-            sorted.forEach(c => { rankCounts[c.rank] = (rankCounts[c.rank] || 0) + 1; suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1; });
+            sorted.forEach(c => {
+                rankCounts[c.rank] = (rankCounts[c.rank] || 0) + 1;
+                suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1;
+            });
             const rValues = Object.values(rankCounts);
             const sValues = Object.values(suitCounts);
+
             let isStraight = false;
             const uniqueValues = [...new Set(sorted.map(c => c.value))].sort((a, b) => a - b);
             if (uniqueValues.length >= 5) {

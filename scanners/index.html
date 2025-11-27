@@ -217,23 +217,21 @@
             <p style="color:#ada; margin-top:20px;">Use ARROWS to Aim/Move</p>
             <p style="color:#ada">Hold SPACE to Scan</p>
             <div class="btn" onclick="startGame()">ENTER</div>
+            <div class="d-btn d-down" data-key="ArrowDown"></div>
+            <div class="d-btn d-left" data-key="ArrowLeft"></div>
+            <div class="d-btn d-right" data-key="ArrowRight"></div>
         </div>
 
         <div id="game-over-screen" style="display: none;">
-            <h1>TERMINATED</h1>
-            <p id="final-score">SCORE: 0</p>
-            <div class="btn" onclick="startGame()">RETRY</div>
+            <h1 style="color: #ff5555;">TERMINATED</h1>
+            <p id="final-score">SCORE: 00000</p>
+            <div class="btn" onclick="startGame()">RETRY SCAN</div>
+            <a href="../index.html"
+                style="color: #55ff55; margin-top: 20px; text-decoration: none; font-weight: bold; border-bottom: 2px solid #55ff55; padding-bottom: 2px; letter-spacing: 2px; font-size: 14px;">RETURN
+                TO HOME</a>
         </div>
 
-        <div id="mobile-controls">
-            <div id="dpad" class="control-group">
-                <div class="d-btn d-up" data-key="ArrowUp"></div>
-                <div class="d-btn d-down" data-key="ArrowDown"></div>
-                <div class="d-btn d-left" data-key="ArrowLeft"></div>
-                <div class="d-btn d-right" data-key="ArrowRight"></div>
-            </div>
-            <div id="action-btn" class="control-group" data-key="Space">SCAN</div>
-        </div>
+        <div id="action-btn" class="control-group" data-key="Space">SCAN</div>
     </div>
 
     <script>
