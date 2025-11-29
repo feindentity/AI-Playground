@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,7 +9,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* CORE LAYOUT */
-        html, body {
+        html,
+        body {
             height: 100%;
             width: 100%;
             overflow: hidden;
@@ -21,39 +23,54 @@
         }
 
         /* UTILS */
-        .hidden-force { display: none !important; }
-        .smooth-scroll { scroll-behavior: smooth; }
+        .hidden-force {
+            display: none !important;
+        }
+
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
 
         /* HIDE SCROLLBAR BUT KEEP FUNCTIONALITY */
-        #bin-scroller::-webkit-scrollbar { display: none; }
-        #bin-scroller { -ms-overflow-style: none; scrollbar-width: none; }
+        #bin-scroller::-webkit-scrollbar {
+            display: none;
+        }
+
+        #bin-scroller {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
         /* GAME VISUALS */
         .bread-texture {
-            background-color: #eaddcf; 
-            border: 2px solid rgba(0,0,0,0.1);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            background-color: #eaddcf;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .bread-crust {
             background: #d69e68;
-            border: 2px solid rgba(0,0,0,0.2);
+            border: 2px solid rgba(0, 0, 0, 0.2);
         }
 
         .ingredient-item {
             position: absolute;
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.15));
+            filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.15));
             pointer-events: none;
         }
 
         /* BIN STYLES */
-        .bin-btn:active { transform: scale(0.95); }
-        .active-ingredient { 
-            border-color: #22c55e !important; 
+        .bin-btn:active {
+            transform: scale(0.95);
+        }
+
+        .active-ingredient {
+            border-color: #22c55e !important;
             background-color: #f0fdf4 !important;
             transform: scale(1.05);
         }
-        
+
         /* TAB STYLES */
         .nav-tab.active-tab {
             color: #166534;
@@ -65,12 +82,14 @@
         .bread-card {
             transition: all 0.2s;
         }
+
         .bread-card.selected {
             ring: 4px solid #22c55e;
             background-color: #f0fdf4;
         }
     </style>
 </head>
+
 <body class="flex flex-col text-gray-800">
 
     <!-- SCENE 1: AUTHENTICATION -->
@@ -78,32 +97,39 @@
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center">
             <h1 class="text-2xl font-bold text-green-900 mb-1">Sandwich Master</h1>
             <p class="text-xs text-gray-500 uppercase tracking-widest mb-6">Training OS v4.9</p>
-            <div id="auth-display" class="bg-gray-100 mb-6 text-3xl font-mono h-16 flex items-center justify-center rounded-lg tracking-[0.5em] text-gray-700">_ _ _ _</div>
+            <div id="auth-display"
+                class="bg-gray-100 mb-6 text-3xl font-mono h-16 flex items-center justify-center rounded-lg tracking-[0.5em] text-gray-700">
+                _ _ _ _</div>
             <div class="grid grid-cols-3 gap-3" id="keypad"></div>
-            <a href="../index.html" class="block w-full text-center mt-4 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-lg border border-gray-200">Home</a>
+            <a href="../index.html"
+                class="block w-full text-center mt-4 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-lg border border-gray-200">Home</a>
         </div>
     </div>
 
     <!-- MAIN APP CONTAINER -->
     <div id="app-container" class="hidden-force flex-1 flex flex-col h-full relative">
-        
+
         <!-- HEADER: TICKET RAIL -->
-        <div id="ticket-rail" class="h-14 shrink-0 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-4 z-30 relative">
+        <div id="ticket-rail"
+            class="h-14 shrink-0 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-4 z-30 relative">
             <div class="flex flex-col leading-tight">
                 <span class="text-xs font-bold text-gray-400 uppercase">Order</span>
                 <span class="font-bold text-lg text-gray-800">#<span id="order-id">101</span></span>
             </div>
-            
-            <div class="flex-1 mx-4 h-full flex items-center overflow-x-auto overflow-y-hidden whitespace-nowrap space-x-2" id="ticket-mini-view"></div>
+
+            <div class="flex-1 mx-4 h-full flex items-center overflow-x-auto overflow-y-hidden whitespace-nowrap space-x-2"
+                id="ticket-mini-view"></div>
 
             <button id="btn-toggle-ticket" class="p-2 bg-gray-100 rounded-lg text-gray-600 hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
 
             <!-- Expanded Ticket Overlay -->
-            <div id="ticket-details" class="absolute top-14 left-0 right-0 bg-white shadow-lg border-b border-gray-200 p-4 transform -translate-y-[150%] transition-transform duration-300 z-20">
+            <div id="ticket-details"
+                class="absolute top-14 left-0 right-0 bg-white shadow-lg border-b border-gray-200 p-4 transform -translate-y-[150%] transition-transform duration-300 z-20">
                 <h3 class="font-bold text-gray-800 mb-2">Recipe Requirements:</h3>
                 <ul id="ticket-full-list" class="space-y-2 text-sm text-gray-600"></ul>
             </div>
@@ -111,24 +137,27 @@
 
         <!-- WORKSPACE AREA -->
         <div id="workspace" class="flex-1 relative overflow-hidden w-full flex items-center justify-center bg-gray-100">
-            
+
             <!-- SCENE 2: BREAD SELECTION -->
             <div id="scene-bread" class="absolute inset-0 flex flex-col bg-gray-50/95 z-20 p-4 overflow-y-auto">
                 <h2 class="text-xl font-bold text-gray-600 mb-4 text-center">Start Order</h2>
-                
+
                 <!-- Step 1: Type -->
                 <div class="mb-6 w-full max-w-lg mx-auto">
                     <h3 class="text-sm font-bold text-gray-400 uppercase mb-2">1. Bread Type</h3>
                     <div class="grid grid-cols-3 gap-3">
-                        <button onclick="game.selectBreadType('italian')" id="btn-bread-italian" class="bread-card p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col items-center gap-2">
+                        <button onclick="game.selectBreadType('italian')" id="btn-bread-italian"
+                            class="bread-card p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col items-center gap-2">
                             <div class="w-full h-8 bg-[#fdf6e3] border border-[#e2b083] rounded-md"></div>
                             <span class="text-sm font-bold">Italian</span>
                         </button>
-                        <button onclick="game.selectBreadType('wheat')" id="btn-bread-wheat" class="bread-card p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col items-center gap-2">
+                        <button onclick="game.selectBreadType('wheat')" id="btn-bread-wheat"
+                            class="bread-card p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col items-center gap-2">
                             <div class="w-full h-8 bg-[#e0c097] border border-[#8d6e63] rounded-md"></div>
                             <span class="text-sm font-bold">9-Grain</span>
                         </button>
-                        <button onclick="game.selectBreadType('herb')" id="btn-bread-herb" class="bread-card p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col items-center gap-2">
+                        <button onclick="game.selectBreadType('herb')" id="btn-bread-herb"
+                            class="bread-card p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col items-center gap-2">
                             <div class="w-full h-8 bg-[#fef3c7] border border-[#d97706] rounded-md"></div>
                             <span class="text-sm font-bold">Herb & Chz</span>
                         </button>
@@ -139,11 +168,13 @@
                 <div class="mb-8 w-full max-w-lg mx-auto">
                     <h3 class="text-sm font-bold text-gray-400 uppercase mb-2">2. Size</h3>
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="game.selectBreadSize('6')" id="btn-size-6" class="bread-card p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center gap-3">
+                        <button onclick="game.selectBreadSize('6')" id="btn-size-6"
+                            class="bread-card p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center gap-3">
                             <div class="w-12 h-4 bg-gray-200 rounded"></div>
                             <span class="font-bold">6-Inch</span>
                         </button>
-                        <button onclick="game.selectBreadSize('12')" id="btn-size-12" class="bread-card p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center gap-3">
+                        <button onclick="game.selectBreadSize('12')" id="btn-size-12"
+                            class="bread-card p-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center gap-3">
                             <div class="w-24 h-4 bg-gray-200 rounded"></div>
                             <span class="font-bold">Footlong</span>
                         </button>
@@ -153,48 +184,55 @@
 
             <!-- SCENE 3: ASSEMBLY -->
             <div id="scene-build" class="hidden-force w-full h-full relative flex items-center justify-center p-4">
-                
+
                 <!-- Sandwich Container (Z-Index 10) -->
-                <div id="sandwich-wrapper" class="relative z-10 h-[35vh] min-h-[180px] transition-all duration-300 rounded-2xl bg-black/5 shadow-inner">
+                <div id="sandwich-wrapper"
+                    class="relative z-10 h-[35vh] min-h-[180px] transition-all duration-300 rounded-2xl bg-black/5 shadow-inner">
                     <!-- Bottom Bread (Layer 0) -->
-                    <div class="absolute inset-0 z-0 flex items-center justify-center bread-crust rounded-2xl" id="vis-bottom-crust">
+                    <div class="absolute inset-0 z-0 flex items-center justify-center bread-crust rounded-2xl"
+                        id="vis-bottom-crust">
                         <div class="absolute inset-2 bread-texture rounded-xl" id="vis-bottom-inner"></div>
                     </div>
-                    
+
                     <!-- Ingredients (Layer 10) -->
                     <div id="layer-ingredients" class="absolute inset-3 z-10 overflow-hidden rounded-lg"></div>
-                    
+
                     <!-- Sauce (Layer 20) -->
-                    <canvas id="layer-sauce" class="absolute inset-0 z-20 w-full h-full pointer-events-none"></canvas>
-                    
+                    <canvas id="layer-sauce" class="absolute inset-0 z-[90] w-full h-full pointer-events-none"></canvas>
+
                     <!-- Top Bread (Layer 30) -->
-                    <div id="top-bread" class="absolute inset-0 z-30 bread-crust rounded-2xl shadow-2xl transition-all duration-500 transform -translate-y-[200%] opacity-0" id="vis-top-crust"></div>
+                    <div id="top-bread"
+                        class="absolute inset-0 z-[100] bread-crust rounded-2xl shadow-2xl transition-all duration-500 transform -translate-y-[200%] opacity-0"
+                        id="vis-top-crust"></div>
                 </div>
 
                 <!-- Finish Button (No Animation, High Z-Index, Direct Click) -->
-                <button 
-                    id="btn-finish" 
-                    onclick="game.finish()"
-                    ontouchend="game.finish()"
+                <button id="btn-finish" onclick="game.finish()" ontouchend="game.finish()"
                     style="z-index: 9999 !important;"
-                    class="absolute top-4 right-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 pointer-events-auto cursor-pointer"
-                >
+                    class="absolute top-4 right-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 pointer-events-auto cursor-pointer">
                     <span>Wrap</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
                 </button>
             </div>
         </div>
 
         <!-- FOOTER -->
-        <div id="bin-interface" class="h-48 shrink-0 bg-white border-t border-gray-200 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-[100] hidden flex flex-col">
+        <div id="bin-interface"
+            class="h-48 shrink-0 bg-white border-t border-gray-200 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-[100] hidden flex flex-col">
             <div class="flex bg-gray-50 border-b border-gray-200 overflow-x-auto" id="category-tabs"></div>
-            <div id="bin-scroller" class="flex-1 overflow-x-auto smooth-scroll whitespace-nowrap p-3 flex items-center space-x-3"></div>
+            <div id="bin-scroller"
+                class="flex-1 overflow-x-auto smooth-scroll whitespace-nowrap p-3 flex items-center space-x-3"></div>
         </div>
     </div>
 
     <!-- MODAL: SCORE -->
-    <div id="scene-score" class="hidden-force absolute inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="score-card">
+    <div id="scene-score"
+        class="hidden-force absolute inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform scale-95 opacity-0 transition-all duration-300"
+            id="score-card">
             <div class="bg-green-600 p-6 text-center">
                 <div class="text-6xl mb-2">🥪</div>
                 <h2 class="text-white text-2xl font-bold">Order Complete</h2>
@@ -204,364 +242,378 @@
                     <span class="text-gray-500 font-bold">Accuracy Score</span>
                     <span class="text-4xl font-bold text-green-600" id="score-val">100%</span>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-600 max-h-32 overflow-y-auto mb-6 border border-gray-100" id="score-log"></div>
+                <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-600 max-h-32 overflow-y-auto mb-6 border border-gray-100"
+                    id="score-log"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <a href="../index.html" class="py-3 text-center text-gray-500 font-bold hover:bg-gray-100 rounded-lg border border-gray-200">Home</a>
-                    <button onclick="game.nextOrder()" class="py-3 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700">Next Order</button>
+                    <a href="../index.html"
+                        class="py-3 text-center text-gray-500 font-bold hover:bg-gray-100 rounded-lg border border-gray-200">Home</a>
+                    <button onclick="game.nextOrder()"
+                        class="py-3 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700">Next
+                        Order</button>
                 </div>
             </div>
         </div>
     </div>
 
-<script>
-/**
- * SANDWICH MASTER V4.9
- */
+    <script>
+        /**
+         * SANDWICH MASTER V4.9
+         */
 
-const ASSETS = {
-    protein_turkey: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,50 Q10,20 40,20 T70,50 T90,80 Q90,95 60,95 T10,50" fill="#fcd5ce" stroke="#e8b4ac" stroke-width="1"/><path d="M20,50 Q30,40 50,45" fill="none" stroke="#e8b4ac" stroke-width="1" opacity="0.6"/></svg>`,
-    protein_ham: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M15,40 Q20,10 50,15 T85,40 Q95,60 75,85 T25,80 Q5,60 15,40" fill="#fca5a5" stroke="#f87171" stroke-width="1"/><path d="M30,30 Q50,30 60,50" fill="none" stroke="white" opacity="0.4" stroke-width="2"/></svg>`,
-    protein_salami: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="45" fill="#b91c1c" stroke="#991b1b" stroke-width="1"/><circle cx="30" cy="30" r="3" fill="white" opacity="0.6"/><circle cx="70" cy="40" r="2" fill="white" opacity="0.6"/><circle cx="50" cy="70" r="4" fill="white" opacity="0.6"/><circle cx="25" cy="60" r="2" fill="white" opacity="0.6"/></svg>`,
-    protein_roastbeef: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,30 Q40,10 80,30 T90,70 Q60,90 20,70 T10,30" fill="#7f1d1d" stroke="#450a0a"/><path d="M20,40 L80,40" stroke="#991b1b" stroke-width="2" opacity="0.3"/></svg>`,
-    cheese_american: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><rect x="15" y="15" width="70" height="70" rx="2" fill="#fef08a" stroke="#fde047" transform="rotate(15 50 50)"/></svg>`,
-    cheese_provolone: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="40" fill="#fef9c3" stroke="#fef08a"/></svg>`,
-    veggie_lettuce: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,50 Q15,20 40,25 T80,20 Q95,40 85,70 T40,85 Q10,80 10,50" fill="#86efac" stroke="#4ade80"/><path d="M20,50 Q40,40 60,60" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.5"/></svg>`,
-    veggie_tomato: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="45" fill="#ef4444" stroke="#b91c1c"/><circle cx="50" cy="50" r="35" fill="#f87171"/><path d="M50,50 L50,15 M50,50 L85,50 M50,50 L50,85 M50,50 L15,50" stroke="#b91c1c" stroke-width="2"/><circle cx="35" cy="35" r="3" fill="#fca5a5"/><circle cx="65" cy="65" r="3" fill="#fca5a5"/></svg>`,
-    veggie_cucumber: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="45" fill="#15803d" stroke="#14532d"/><circle cx="50" cy="50" r="40" fill="#d1fae5"/><circle cx="50" cy="50" r="15" fill="#a7f3d0" opacity="0.5"/><circle cx="45" cy="45" r="1" fill="#15803d"/><circle cx="55" cy="55" r="1" fill="#15803d"/></svg>`,
-    veggie_peppers: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M50,10 A40,40 0 0,1 50,90 A40,40 0 0,1 50,10 M50,25 A25,25 0 0,0 50,75 A25,25 0 0,0 50,25" fill="#22c55e" fill-rule="evenodd" stroke="#15803d"/></svg>`,
-    veggie_onions: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#a855f7" stroke-width="4"/><path d="M20,50 A30,30 0 0,1 80,50" fill="none" stroke="#d8b4fe" stroke-width="3"/></svg>`
-};
-
-const BREAD_TYPES = {
-    'italian': { label: 'Italian', inner: '#fdf6e3', crust: '#e2b083' },
-    'wheat': { label: '9-Grain Wheat', inner: '#e0c097', crust: '#8d6e63' },
-    'herb': { label: 'Herb & Cheese', inner: '#fef3c7', crust: '#d97706' }
-};
-
-const INGREDIENTS = {
-    proteins: [
-        { id: 'turkey', name: 'Turkey', svg: ASSETS.protein_turkey, type: 'protein' },
-        { id: 'ham', name: 'Ham', svg: ASSETS.protein_ham, type: 'protein' },
-        { id: 'salami', name: 'Salami', svg: ASSETS.protein_salami, type: 'protein' },
-        { id: 'roastbeef', name: 'R. Beef', svg: ASSETS.protein_roastbeef, type: 'protein' }
-    ],
-    cheeses: [
-        { id: 'american', name: 'American', svg: ASSETS.cheese_american, type: 'cheese' },
-        { id: 'provolone', name: 'Provolone', svg: ASSETS.cheese_provolone, type: 'cheese' }
-    ],
-    veggies: [
-        { id: 'lettuce', name: 'Lettuce', svg: ASSETS.veggie_lettuce, type: 'veggie' },
-        { id: 'tomato', name: 'Tomato', svg: ASSETS.veggie_tomato, type: 'veggie' },
-        { id: 'cucumbers', name: 'Cucumbers', svg: ASSETS.veggie_cucumber, type: 'veggie' },
-        { id: 'peppers', name: 'Peppers', svg: ASSETS.veggie_peppers, type: 'veggie' },
-        { id: 'onions', name: 'Onions', svg: ASSETS.veggie_onions, type: 'veggie' }
-    ],
-    sauces: [
-        { id: 'mayo', name: 'Mayo', color: '#fffff0', type: 'sauce' },
-        { id: 'mustard', name: 'Mustard', color: '#eab308', type: 'sauce' },
-        { id: 'ranch', name: 'Ranch', color: '#f3f4f6', type: 'sauce' }
-    ]
-};
-
-const LOGIC = {
-    '12': { protein: 8, cheese: 4, veggie: 6, width: 'w-[92%]', label: 'Footlong' },
-    '6': { protein: 4, cheese: 2, veggie: 3, width: 'w-[55%]', label: '6-Inch' }
-};
-
-class Game {
-    constructor() {
-        this.state = { scene: 'auth', size: null, breadType: null, ticket: null, build: [], selected: null, sauceMode: false, pin: "" };
-        this.canvas = document.getElementById('layer-sauce');
-        this.ctx = this.canvas.getContext('2d');
-        this.initAuth();
-        this.initScrollSpy();
-        window.addEventListener('resize', () => this.resizeCanvas());
-    }
-
-    initAuth() {
-        const k = document.getElementById('keypad');
-        const d = document.getElementById('auth-display');
-        [1,2,3,4,5,6,7,8,9,'C',0,'GO'].forEach(key => {
-            const btn = document.createElement('button');
-            btn.className = `h-14 rounded-lg text-xl font-bold shadow-sm active:scale-95 transition-all ${key==='GO'?'bg-green-600 text-white col-span-1':key==='C'?'bg-red-100 text-red-500':'bg-gray-100 text-gray-700'}`;
-            btn.innerText = key;
-            btn.onclick = () => {
-                if(key === 'C') this.state.pin = "";
-                else if(key === 'GO') { if(this.state.pin.length===4) this.start(); }
-                else if(this.state.pin.length < 4) this.state.pin += key;
-                d.innerText = this.state.pin.padEnd(4, '_').split('').join(' ');
-            };
-            k.appendChild(btn);
-        });
-    }
-
-    start() {
-        document.getElementById('scene-auth').classList.add('hidden-force');
-        document.getElementById('app-container').classList.remove('hidden-force');
-        this.renderBins();
-        this.nextOrder();
-    }
-
-    quit() {
-        document.getElementById('scene-score').classList.add('hidden-force');
-        document.getElementById('app-container').classList.add('hidden-force');
-        document.getElementById('scene-auth').classList.remove('hidden-force');
-        this.state.pin = "";
-        document.getElementById('auth-display').innerText = "_ _ _ _";
-        this.state.ticket = null;
-    }
-
-    nextOrder() {
-        document.getElementById('scene-score').classList.add('hidden-force');
-        document.getElementById('score-card').classList.remove('scale-100', 'opacity-100');
-        document.getElementById('score-card').classList.add('scale-95', 'opacity-0');
-        this.state.build = [];
-        this.state.size = null;
-        this.state.breadType = null;
-        this.state.sauceMode = false;
-        this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-        document.getElementById('layer-ingredients').innerHTML = '';
-        document.getElementById('top-bread').style.transform = "translateY(-200%)";
-        document.getElementById('top-bread').style.opacity = "0";
-        document.querySelectorAll('.bread-card').forEach(b => b.classList.remove('selected'));
-
-        const is12 = Math.random() > 0.5;
-        const s = is12 ? '12' : '6';
-        const bKeys = Object.keys(BREAD_TYPES);
-        const bType = bKeys[Math.floor(Math.random() * bKeys.length)];
-        const p = INGREDIENTS.proteins[Math.floor(Math.random()*INGREDIENTS.proteins.length)];
-        const c = INGREDIENTS.cheeses[Math.floor(Math.random()*INGREDIENTS.cheeses.length)];
-        const sauce = INGREDIENTS.sauces[0];
-
-        this.state.ticket = {
-            size: s, breadType: bType,
-            items: [{...p,qty:LOGIC[s].protein}, {...c,qty:LOGIC[s].cheese}, {...INGREDIENTS.veggies[0],qty:LOGIC[s].veggie}, {...sauce,qty:1}]
+        const ASSETS = {
+            protein_turkey: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,50 Q10,20 40,20 T70,50 T90,80 Q90,95 60,95 T10,50" fill="#fcd5ce" stroke="#e8b4ac" stroke-width="1"/><path d="M20,50 Q30,40 50,45" fill="none" stroke="#e8b4ac" stroke-width="1" opacity="0.6"/></svg>`,
+            protein_ham: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M15,40 Q20,10 50,15 T85,40 Q95,60 75,85 T25,80 Q5,60 15,40" fill="#fca5a5" stroke="#f87171" stroke-width="1"/><path d="M30,30 Q50,30 60,50" fill="none" stroke="white" opacity="0.4" stroke-width="2"/></svg>`,
+            protein_salami: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="45" fill="#b91c1c" stroke="#991b1b" stroke-width="1"/><circle cx="30" cy="30" r="3" fill="white" opacity="0.6"/><circle cx="70" cy="40" r="2" fill="white" opacity="0.6"/><circle cx="50" cy="70" r="4" fill="white" opacity="0.6"/><circle cx="25" cy="60" r="2" fill="white" opacity="0.6"/></svg>`,
+            protein_roastbeef: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,30 Q40,10 80,30 T90,70 Q60,90 20,70 T10,30" fill="#7f1d1d" stroke="#450a0a"/><path d="M20,40 L80,40" stroke="#991b1b" stroke-width="2" opacity="0.3"/></svg>`,
+            cheese_american: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><rect x="15" y="15" width="70" height="70" rx="2" fill="#fef08a" stroke="#fde047" transform="rotate(15 50 50)"/></svg>`,
+            cheese_provolone: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="40" fill="#fef9c3" stroke="#fef08a"/></svg>`,
+            veggie_lettuce: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,50 Q15,20 40,25 T80,20 Q95,40 85,70 T40,85 Q10,80 10,50" fill="#86efac" stroke="#4ade80"/><path d="M20,50 Q40,40 60,60" fill="none" stroke="#22c55e" stroke-width="1" opacity="0.5"/></svg>`,
+            veggie_tomato: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="45" fill="#ef4444" stroke="#b91c1c"/><circle cx="50" cy="50" r="35" fill="#f87171"/><path d="M50,50 L50,15 M50,50 L85,50 M50,50 L50,85 M50,50 L15,50" stroke="#b91c1c" stroke-width="2"/><circle cx="35" cy="35" r="3" fill="#fca5a5"/><circle cx="65" cy="65" r="3" fill="#fca5a5"/></svg>`,
+            veggie_cucumber: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><circle cx="50" cy="50" r="45" fill="#15803d" stroke="#14532d"/><circle cx="50" cy="50" r="40" fill="#d1fae5"/><circle cx="50" cy="50" r="15" fill="#a7f3d0" opacity="0.5"/><circle cx="45" cy="45" r="1" fill="#15803d"/><circle cx="55" cy="55" r="1" fill="#15803d"/></svg>`,
+            veggie_peppers: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M50,10 A40,40 0 0,1 50,90 A40,40 0 0,1 50,10 M50,25 A25,25 0 0,0 50,75 A25,25 0 0,0 50,25" fill="#22c55e" fill-rule="evenodd" stroke="#15803d"/></svg>`,
+            veggie_onions: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm"><path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#a855f7" stroke-width="4"/><path d="M20,50 A30,30 0 0,1 80,50" fill="none" stroke="#d8b4fe" stroke-width="3"/></svg>`
         };
 
-        this.renderTicket();
-        this.loadScene('bread');
-        document.getElementById('bin-scroller').scrollTo(0,0);
-        this.highlightTab(0);
-    }
+        const BREAD_TYPES = {
+            'italian': { label: 'Italian', inner: '#fdf6e3', crust: '#e2b083' },
+            'wheat': { label: '9-Grain Wheat', inner: '#e0c097', crust: '#8d6e63' },
+            'herb': { label: 'Herb & Cheese', inner: '#fef3c7', crust: '#d97706' }
+        };
 
-    renderTicket() {
-        const t = this.state.ticket;
-        const mini = document.getElementById('ticket-mini-view');
-        const full = document.getElementById('ticket-full-list');
-        const bLabel = BREAD_TYPES[t.breadType].label;
-        document.getElementById('order-id').innerText = Math.floor(Math.random() * 899) + 100;
-        mini.innerHTML = `<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-bold mr-1">${bLabel} ${LOGIC[t.size].label}</span>`;
-        t.items.forEach(i => mini.innerHTML += `<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs border border-gray-200 mx-0.5">${i.name}</span>`);
-        full.innerHTML = `<li class="flex justify-between border-b pb-1"><span>Bread</span><span class="font-bold text-right">${bLabel}<br>${LOGIC[t.size].label}</span></li>`;
-        t.items.forEach(i => full.innerHTML += `<li class="flex justify-between"><span>${i.name}</span><span class="bg-green-100 text-green-800 px-2 rounded-full text-xs font-bold">${i.type==='sauce'?'Line':`x${i.qty}`}</span></li>`);
-    }
+        const INGREDIENTS = {
+            proteins: [
+                { id: 'turkey', name: 'Turkey', svg: ASSETS.protein_turkey, type: 'protein' },
+                { id: 'ham', name: 'Ham', svg: ASSETS.protein_ham, type: 'protein' },
+                { id: 'salami', name: 'Salami', svg: ASSETS.protein_salami, type: 'protein' },
+                { id: 'roastbeef', name: 'R. Beef', svg: ASSETS.protein_roastbeef, type: 'protein' }
+            ],
+            cheeses: [
+                { id: 'american', name: 'American', svg: ASSETS.cheese_american, type: 'cheese' },
+                { id: 'provolone', name: 'Provolone', svg: ASSETS.cheese_provolone, type: 'cheese' }
+            ],
+            veggies: [
+                { id: 'lettuce', name: 'Lettuce', svg: ASSETS.veggie_lettuce, type: 'veggie' },
+                { id: 'tomato', name: 'Tomato', svg: ASSETS.veggie_tomato, type: 'veggie' },
+                { id: 'cucumbers', name: 'Cucumbers', svg: ASSETS.veggie_cucumber, type: 'veggie' },
+                { id: 'peppers', name: 'Peppers', svg: ASSETS.veggie_peppers, type: 'veggie' },
+                { id: 'onions', name: 'Onions', svg: ASSETS.veggie_onions, type: 'veggie' }
+            ],
+            sauces: [
+                { id: 'mayo', name: 'Mayo', color: '#fffff0', type: 'sauce' },
+                { id: 'mustard', name: 'Mustard', color: '#c27803', type: 'sauce' },
+                { id: 'ranch', name: 'Ranch', color: '#e5e7eb', type: 'sauce' }
+            ]
+        };
 
-    loadScene(name) {
-        ['bread','build'].forEach(s => document.getElementById(`scene-${s}`).classList.add('hidden-force'));
-        document.getElementById('bin-interface').classList.add('hidden');
-        document.getElementById(`scene-${name}`).classList.remove('hidden-force');
-        if(name === 'build') {
-            document.getElementById('bin-interface').classList.remove('hidden');
-            document.getElementById('bin-interface').classList.add('flex');
-            this.resizeCanvas();
-        }
-    }
+        const LOGIC = {
+            '12': { protein: 8, cheese: 4, veggie: 6, width: 'w-[92%]', label: 'Footlong' },
+            '6': { protein: 4, cheese: 2, veggie: 3, width: 'w-[55%]', label: '6-Inch' }
+        };
 
-    selectBreadType(type) {
-        if(type !== this.state.ticket.breadType) { alert(`Order requires ${BREAD_TYPES[this.state.ticket.breadType].label}!`); return; }
-        this.state.breadType = type;
-        document.querySelectorAll('#scene-bread .bread-card').forEach(b => { if(b.id.includes('bread-')) b.classList.remove('selected'); });
-        document.getElementById(`btn-bread-${type}`).classList.add('selected');
-    }
+        class Game {
+            constructor() {
+                this.state = { scene: 'auth', size: null, breadType: null, ticket: null, build: [], selected: null, sauceMode: false, pin: "" };
+                this.canvas = document.getElementById('layer-sauce');
+                this.ctx = this.canvas.getContext('2d');
+                this.initAuth();
+                this.initScrollSpy();
+                window.addEventListener('resize', () => this.resizeCanvas());
 
-    selectBreadSize(size) {
-        if(!this.state.breadType) { alert("Please select Bread Type first."); return; }
-        if(size !== this.state.ticket.size) { alert(`Order requires ${LOGIC[this.state.ticket.size].label}!`); return; }
-        this.state.size = size;
-        document.getElementById(`btn-size-${size}`).classList.add('selected');
-        setTimeout(() => this.initBuild(), 300);
-    }
-
-    initBuild() {
-        this.loadScene('build');
-        const wrapper = document.getElementById('sandwich-wrapper');
-        const bStyle = BREAD_TYPES[this.state.breadType];
-        wrapper.className = `relative z-10 h-[35vh] min-h-[180px] transition-all duration-300 rounded-2xl bg-black/5 shadow-inner ${LOGIC[this.state.size].width}`;
-        
-        document.getElementById('vis-bottom-crust').style.backgroundColor = bStyle.crust;
-        document.getElementById('vis-bottom-crust').style.borderColor = this.darkenColor(bStyle.crust, 20);
-        document.getElementById('vis-top-crust').style.backgroundColor = bStyle.crust;
-        document.getElementById('vis-top-crust').style.borderColor = this.darkenColor(bStyle.crust, 20);
-        document.getElementById('vis-bottom-inner').style.backgroundColor = bStyle.inner;
-    }
-    
-    darkenColor(hex, amount) {
-        let col = hex.replace('#','');
-        let num = parseInt(col, 16);
-        let r = (num >> 16) - amount;
-        let b = ((num >> 8) & 0x00FF) - amount;
-        let g = (num & 0x0000FF) - amount;
-        return '#' + (0x1000000 + (r<255?r<1?0:r:255)*0x10000 + (b<255?b<1?0:b:255)*0x100 + (g<255?g<1?0:g:255)).toString(16).slice(1);
-    }
-
-    resizeCanvas() {
-        const w = document.getElementById('sandwich-wrapper');
-        if(w) { this.canvas.width = w.clientWidth; this.canvas.height = w.clientHeight; }
-    }
-
-    renderBins() {
-        const scroll = document.getElementById('bin-scroller');
-        const tabs = document.getElementById('category-tabs');
-        scroll.innerHTML = ''; tabs.innerHTML = '';
-        const cats = [{id:'proteins', label: 'Meats'}, {id:'cheeses', label: 'Cheese'}, {id:'veggies', label: 'Veggies'}, {id:'sauces', label: 'Sauces'}];
-        cats.forEach((c, idx) => {
-            const t = document.createElement('button');
-            t.className = "nav-tab flex-shrink-0 px-6 py-3 text-sm font-bold text-gray-500 uppercase transition-colors hover:text-green-600";
-            t.innerText = c.label;
-            t.onclick = () => { const target = document.getElementById(`group-${c.id}`); if(target) { target.scrollIntoView({ behavior: 'smooth', inline: 'start' }); this.highlightTab(idx); }};
-            tabs.appendChild(t);
-        });
-        cats.forEach(c => {
-            const grp = document.createElement('div');
-            grp.id = `group-${c.id}`;
-            grp.className = "flex space-x-3 pr-6 items-center";
-            INGREDIENTS[c.id].forEach(item => {
-                const btn = document.createElement('button');
-                btn.className = "bin-btn w-20 h-20 bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-center shadow-sm shrink-0 relative";
-                const icon = document.createElement('div');
-                icon.className = "w-10 h-10 mb-1";
-                if(item.type === 'sauce') { icon.style.backgroundColor = item.color; icon.className += " rounded-full border border-gray-300"; }
-                else { icon.innerHTML = item.svg; }
-                btn.appendChild(icon);
-                btn.innerHTML += `<span class="text-[10px] font-bold text-gray-600 leading-none text-center px-1">${item.name}</span>`;
-                btn.onclick = () => this.selectItem(item, btn);
-                grp.appendChild(btn);
-            });
-            scroll.appendChild(grp);
-        });
-        this.highlightTab(0);
-    }
-
-    highlightTab(idx) {
-        const tabs = document.querySelectorAll('.nav-tab');
-        tabs.forEach(t => t.classList.remove('active-tab'));
-        if(tabs[idx]) tabs[idx].classList.add('active-tab');
-    }
-
-    initScrollSpy() {
-        const scroll = document.getElementById('bin-scroller');
-        scroll.addEventListener('scroll', () => {
-            const groups = ['proteins','cheeses','veggies','sauces'];
-            for(let i=0; i<groups.length; i++) {
-                const el = document.getElementById(`group-${groups[i]}`);
-                if (el) { const rect = el.getBoundingClientRect(); if(rect.left >= 0 && rect.left < 150) { this.highlightTab(i); break; } }
+                const ticketButton = document.getElementById('btn-toggle-ticket');
+                ticketButton.addEventListener('click', () => {
+                    const ticketDetails = document.getElementById('ticket-details');
+                    const icon = ticketButton.querySelector('svg');
+                    const isOpen = ticketDetails.style.transform === 'translateY(0px)';
+                    ticketDetails.style.transform = isOpen ? '' : 'translateY(0px)';
+                    icon.style.transform = isOpen ? '' : 'rotate(180deg)';
+                });
             }
-        });
-    }
 
-    selectItem(item, btn) {
-        document.querySelectorAll('.bin-btn').forEach(b => b.classList.remove('active-ingredient'));
-        btn.classList.add('active-ingredient');
-        this.state.selected = item;
-        if(item.type === 'sauce') { this.enableSauce(item.color); } 
-        else { this.disableSauce(); this.addIngredient(item); }
-    }
+            initAuth() {
+                const k = document.getElementById('keypad');
+                const d = document.getElementById('auth-display');
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, 'GO'].forEach(key => {
+                    const btn = document.createElement('button');
+                    btn.className = `h-14 rounded-lg text-xl font-bold shadow-sm active:scale-95 transition-all ${key === 'GO' ? 'bg-green-600 text-white col-span-1' : key === 'C' ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-700'}`;
+                    btn.innerText = key;
+                    btn.onclick = () => {
+                        if (key === 'C') this.state.pin = "";
+                        else if (key === 'GO') { if (this.state.pin.length === 4) this.start(); }
+                        else if (this.state.pin.length < 4) this.state.pin += key;
+                        d.innerText = this.state.pin.padEnd(4, '_').split('').join(' ');
+                    };
+                    k.appendChild(btn);
+                });
+            }
 
-    addIngredient(item) {
-        const rules = LOGIC[this.state.size];
-        const maxSlots = item.type === 'veggie' ? rules.veggie : (item.type === 'cheese' ? rules.cheese : rules.protein);
-        const current = this.state.build.filter(i => i.id === item.id).length;
-        if(current >= maxSlots + 3) return; 
-        const pct = 100 / maxSlots;
-        const slot = current % maxSlots;
-        const jX = (Math.random() - 0.5) * 4;
-        const jY = (Math.random() - 0.5) * 10;
-        const rot = (Math.random() - 0.5) * 45;
-        const el = document.createElement('div');
-        el.className = "ingredient-item flex items-center justify-center";
-        let sizeClass = "w-16 h-16"; 
-        if(item.type === 'cheese') sizeClass = "w-14 h-14";
-        if(item.type === 'veggie') sizeClass = "w-12 h-12";
-        el.className += ` ${sizeClass}`;
-        el.innerHTML = item.svg;
-        const leftBase = (slot * pct) + (pct/2);
-        el.style.left = `calc(${leftBase}% - 2rem)`; 
-        el.style.top = `calc(50% - 2rem + ${jY}px)`;
-        let zBase = 10;
-        if(item.type === 'cheese') zBase = 50;
-        if(item.type === 'veggie') zBase = 80;
-        el.style.zIndex = zBase + current;
-        el.style.transform = `scale(0) rotate(${rot}deg)`;
-        document.getElementById('layer-ingredients').appendChild(el);
-        requestAnimationFrame(() => { el.style.transform = `scale(1) rotate(${rot}deg)`; });
-        this.state.build.push(item);
-    }
+            start() {
+                document.getElementById('scene-auth').classList.add('hidden-force');
+                document.getElementById('app-container').classList.remove('hidden-force');
+                this.renderBins();
+                this.nextOrder();
+            }
 
-    enableSauce(color) {
-        this.state.sauceMode = true;
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 10;
-        this.ctx.lineCap = 'round';
-        this.ctx.lineJoin = 'round';
-        document.getElementById('layer-sauce').style.pointerEvents = 'auto';
+            quit() {
+                document.getElementById('scene-score').classList.add('hidden-force');
+                document.getElementById('app-container').classList.add('hidden-force');
+                document.getElementById('scene-auth').classList.remove('hidden-force');
+                this.state.pin = "";
+                document.getElementById('auth-display').innerText = "_ _ _ _";
+                this.state.ticket = null;
+            }
 
-        let drawing = false;
-        const getXY = (e) => {
-            const r = this.canvas.getBoundingClientRect();
-            const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
-            const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - r.left, y: clientY - r.top };
-        };
-        const start = (e) => { e.preventDefault(); drawing = true; const p = getXY(e); this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y); if(!this.state.build.find(i => i.id === this.state.selected.id)) this.state.build.push(this.state.selected); };
-        const move = (e) => { if(!drawing) return; e.preventDefault(); const p = getXY(e); this.ctx.lineTo(p.x, p.y); this.ctx.stroke(); };
-        const end = () => drawing = false;
-        this.canvas.onmousedown = start; this.canvas.onmousemove = move; this.canvas.onmouseup = end;
-        this.canvas.ontouchstart = start; this.canvas.ontouchmove = move; this.canvas.ontouchend = end;
-    }
+            nextOrder() {
+                document.getElementById('scene-score').classList.add('hidden-force');
+                document.getElementById('score-card').classList.remove('scale-100', 'opacity-100');
+                document.getElementById('score-card').classList.add('scale-95', 'opacity-0');
+                this.state.build = [];
+                this.state.size = null;
+                this.state.breadType = null;
+                this.state.sauceMode = false;
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                document.getElementById('layer-ingredients').innerHTML = '';
+                document.getElementById('top-bread').style.transform = "translateY(-200%)";
+                document.getElementById('top-bread').style.opacity = "0";
+                document.querySelectorAll('.bread-card').forEach(b => b.classList.remove('selected'));
 
-    disableSauce() {
-        this.state.sauceMode = false;
-        document.getElementById('layer-sauce').style.pointerEvents = 'none';
-        this.canvas.onmousedown = null; this.canvas.ontouchstart = null;
-    }
+                const is12 = Math.random() > 0.5;
+                const s = is12 ? '12' : '6';
+                const bKeys = Object.keys(BREAD_TYPES);
+                const bType = bKeys[Math.floor(Math.random() * bKeys.length)];
+                const p = INGREDIENTS.proteins[Math.floor(Math.random() * INGREDIENTS.proteins.length)];
+                const c = INGREDIENTS.cheeses[Math.floor(Math.random() * INGREDIENTS.cheeses.length)];
+                const sauce = INGREDIENTS.sauces[Math.floor(Math.random() * INGREDIENTS.sauces.length)];
 
-    finish() {
-        const t = document.getElementById('top-bread');
-        t.style.opacity = 1; t.style.transform = "translateY(0)";
-        setTimeout(() => { 
-            this.calcScore(); 
-            document.getElementById('scene-score').classList.remove('hidden-force'); 
-            setTimeout(() => { 
-                document.getElementById('score-card').classList.remove('scale-95', 'opacity-0'); 
-                document.getElementById('score-card').classList.add('scale-100', 'opacity-100'); 
-            }, 50); 
-        }, 600);
-    }
+                this.state.ticket = {
+                    size: s, breadType: bType,
+                    items: [{ ...p, qty: LOGIC[s].protein }, { ...c, qty: LOGIC[s].cheese }, { ...INGREDIENTS.veggies[0], qty: LOGIC[s].veggie }, { ...sauce, qty: 1 }]
+                };
 
-    calcScore() {
-        let score = 100; const logs = []; const built = this.state.build; const reqs = this.state.ticket.items;
-        try {
-            reqs.forEach(req => {
-                const found = built.filter(b => b.id === req.id).length;
-                if(req.type === 'sauce') { if(req.qty > 0 && found === 0) { score -= 10; logs.push(`Missing Sauce: ${req.name}`); } }
-                else { const diff = Math.abs(found - req.qty); if(diff > 0) { score -= (diff * 10); logs.push(`${req.name}: Expected ${req.qty}, used ${found}`); } }
-            });
-            const extras = built.filter(b => !reqs.find(r => r.id === b.id));
-            if(extras.length > 0) { score -= (extras.length * 5); logs.push(`Wrong Ingredients: ${extras.length} added`); }
-            if(score < 0) score = 0;
-            document.getElementById('score-val').innerText = `${score}%`;
-            const logDiv = document.getElementById('score-log');
-            if(score === 100) logDiv.innerHTML = `<span class="text-green-600 font-bold">Perfect Sandwich!</span>`;
-            else logDiv.innerHTML = logs.map(l => `<div class="border-b py-1 border-gray-200">${l}</div>`).join('');
-        } catch(e) {
-            console.error(e);
-            document.getElementById('score-val').innerText = "ERR";
-            document.getElementById('score-log').innerHTML = "Scoring Error. Check console.";
+                this.renderTicket();
+                this.loadScene('bread');
+                document.getElementById('bin-scroller').scrollTo(0, 0);
+                this.highlightTab(0);
+            }
+
+            renderTicket() {
+                const t = this.state.ticket;
+                const mini = document.getElementById('ticket-mini-view');
+                const full = document.getElementById('ticket-full-list');
+                const bLabel = BREAD_TYPES[t.breadType].label;
+                document.getElementById('order-id').innerText = Math.floor(Math.random() * 899) + 100;
+                mini.innerHTML = `<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-bold mr-1">${bLabel} ${LOGIC[t.size].label}</span>`;
+                t.items.forEach(i => mini.innerHTML += `<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs border border-gray-200 mx-0.5">${i.name}</span>`);
+                full.innerHTML = `<li class="flex justify-between border-b pb-1"><span>Bread</span><span class="font-bold text-right">${bLabel}<br>${LOGIC[t.size].label}</span></li>`;
+                t.items.forEach(i => full.innerHTML += `<li class="flex justify-between"><span>${i.name}</span><span class="bg-green-100 text-green-800 px-2 rounded-full text-xs font-bold">${i.type === 'sauce' ? 'Line' : `x${i.qty}`}</span></li>`);
+            }
+
+            loadScene(name) {
+                ['bread', 'build'].forEach(s => document.getElementById(`scene-${s}`).classList.add('hidden-force'));
+                document.getElementById('bin-interface').classList.add('hidden');
+                document.getElementById(`scene-${name}`).classList.remove('hidden-force');
+                if (name === 'build') {
+                    document.getElementById('bin-interface').classList.remove('hidden');
+                    document.getElementById('bin-interface').classList.add('flex');
+                    this.resizeCanvas();
+                }
+            }
+
+            selectBreadType(type) {
+                if (type !== this.state.ticket.breadType) { alert(`Order requires ${BREAD_TYPES[this.state.ticket.breadType].label}!`); return; }
+                this.state.breadType = type;
+                document.querySelectorAll('#scene-bread .bread-card').forEach(b => { if (b.id.includes('bread-')) b.classList.remove('selected'); });
+                document.getElementById(`btn-bread-${type}`).classList.add('selected');
+            }
+
+            selectBreadSize(size) {
+                if (!this.state.breadType) { alert("Please select Bread Type first."); return; }
+                if (size !== this.state.ticket.size) { alert(`Order requires ${LOGIC[this.state.ticket.size].label}!`); return; }
+                this.state.size = size;
+                document.getElementById(`btn-size-${size}`).classList.add('selected');
+                setTimeout(() => this.initBuild(), 300);
+            }
+
+            initBuild() {
+                this.loadScene('build');
+                const wrapper = document.getElementById('sandwich-wrapper');
+                const bStyle = BREAD_TYPES[this.state.breadType];
+                wrapper.className = `relative z-10 h-[35vh] min-h-[180px] transition-all duration-300 rounded-2xl bg-black/5 shadow-inner ${LOGIC[this.state.size].width}`;
+
+                document.getElementById('vis-bottom-crust').style.backgroundColor = bStyle.crust;
+                document.getElementById('vis-bottom-crust').style.borderColor = this.darkenColor(bStyle.crust, 20);
+                document.getElementById('vis-top-crust').style.backgroundColor = bStyle.crust;
+                document.getElementById('vis-top-crust').style.borderColor = this.darkenColor(bStyle.crust, 20);
+                document.getElementById('vis-bottom-inner').style.backgroundColor = bStyle.inner;
+            }
+
+            darkenColor(hex, amount) {
+                let col = hex.replace('#', '');
+                let num = parseInt(col, 16);
+                let r = (num >> 16) - amount;
+                let b = ((num >> 8) & 0x00FF) - amount;
+                let g = (num & 0x0000FF) - amount;
+                return '#' + (0x1000000 + (r < 255 ? r < 1 ? 0 : r : 255) * 0x10000 + (b < 255 ? b < 1 ? 0 : b : 255) * 0x100 + (g < 255 ? g < 1 ? 0 : g : 255)).toString(16).slice(1);
+            }
+
+            resizeCanvas() {
+                const w = document.getElementById('sandwich-wrapper');
+                if (w) { this.canvas.width = w.clientWidth; this.canvas.height = w.clientHeight; }
+            }
+
+            renderBins() {
+                const scroll = document.getElementById('bin-scroller');
+                const tabs = document.getElementById('category-tabs');
+                scroll.innerHTML = ''; tabs.innerHTML = '';
+                const cats = [{ id: 'proteins', label: 'Meats' }, { id: 'cheeses', label: 'Cheese' }, { id: 'veggies', label: 'Veggies' }, { id: 'sauces', label: 'Sauces' }];
+                cats.forEach((c, idx) => {
+                    const t = document.createElement('button');
+                    t.className = "nav-tab flex-shrink-0 px-6 py-3 text-sm font-bold text-gray-500 uppercase transition-colors hover:text-green-600";
+                    t.innerText = c.label;
+                    t.onclick = () => { const target = document.getElementById(`group-${c.id}`); if (target) { target.scrollIntoView({ behavior: 'smooth', inline: 'start' }); this.highlightTab(idx); } };
+                    tabs.appendChild(t);
+                });
+                cats.forEach(c => {
+                    const grp = document.createElement('div');
+                    grp.id = `group-${c.id}`;
+                    grp.className = "flex space-x-3 pr-6 items-center";
+                    INGREDIENTS[c.id].forEach(item => {
+                        const btn = document.createElement('button');
+                        btn.className = "bin-btn w-20 h-20 bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-center shadow-sm shrink-0 relative";
+                        const icon = document.createElement('div');
+                        icon.className = "w-10 h-10 mb-1";
+                        if (item.type === 'sauce') { icon.style.backgroundColor = item.color; icon.className += " rounded-full border border-gray-300"; }
+                        else { icon.innerHTML = item.svg; }
+                        btn.appendChild(icon);
+                        btn.innerHTML += `<span class="text-[10px] font-bold text-gray-600 leading-none text-center px-1">${item.name}</span>`;
+                        btn.onclick = () => this.selectItem(item, btn);
+                        grp.appendChild(btn);
+                    });
+                    scroll.appendChild(grp);
+                });
+                this.highlightTab(0);
+            }
+
+            highlightTab(idx) {
+                const tabs = document.querySelectorAll('.nav-tab');
+                tabs.forEach(t => t.classList.remove('active-tab'));
+                if (tabs[idx]) tabs[idx].classList.add('active-tab');
+            }
+
+            initScrollSpy() {
+                const scroll = document.getElementById('bin-scroller');
+                scroll.addEventListener('scroll', () => {
+                    const groups = ['proteins', 'cheeses', 'veggies', 'sauces'];
+                    for (let i = 0; i < groups.length; i++) {
+                        const el = document.getElementById(`group-${groups[i]}`);
+                        if (el) { const rect = el.getBoundingClientRect(); if (rect.left >= 0 && rect.left < 150) { this.highlightTab(i); break; } }
+                    }
+                });
+            }
+
+            selectItem(item, btn) {
+                document.querySelectorAll('.bin-btn').forEach(b => b.classList.remove('active-ingredient'));
+                btn.classList.add('active-ingredient');
+                this.state.selected = item;
+                if (item.type === 'sauce') { this.enableSauce(item.color); }
+                else { this.disableSauce(); this.addIngredient(item); }
+            }
+
+            addIngredient(item) {
+                const rules = LOGIC[this.state.size];
+                const maxSlots = item.type === 'veggie' ? rules.veggie : (item.type === 'cheese' ? rules.cheese : rules.protein);
+                const current = this.state.build.filter(i => i.id === item.id).length;
+                if (current >= maxSlots + 3) return;
+                const pct = 100 / maxSlots;
+                const slot = current % maxSlots;
+                const jX = (Math.random() - 0.5) * 4;
+                const jY = (Math.random() - 0.5) * 10;
+                const rot = (Math.random() - 0.5) * 45;
+                const el = document.createElement('div');
+                el.className = "ingredient-item flex items-center justify-center";
+                let sizeClass = "w-16 h-16";
+                if (item.type === 'cheese') sizeClass = "w-14 h-14";
+                if (item.type === 'veggie') sizeClass = "w-12 h-12";
+                el.className += ` ${sizeClass}`;
+                el.innerHTML = item.svg;
+                const leftBase = (slot * pct) + (pct / 2);
+                el.style.left = `calc(${leftBase}% - 2rem)`;
+                el.style.top = `calc(50% - 2rem + ${jY}px)`;
+                let zBase = 10;
+                if (item.type === 'cheese') zBase = 50;
+                if (item.type === 'veggie') zBase = 80;
+                el.style.zIndex = zBase + current;
+                el.style.transform = `scale(0) rotate(${rot}deg)`;
+                document.getElementById('layer-ingredients').appendChild(el);
+                requestAnimationFrame(() => { el.style.transform = `scale(1) rotate(${rot}deg)`; });
+                this.state.build.push(item);
+            }
+
+            enableSauce(color) {
+                this.state.sauceMode = true;
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 10;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                document.getElementById('layer-sauce').style.pointerEvents = 'auto';
+
+                let drawing = false;
+                const getXY = (e) => {
+                    const r = this.canvas.getBoundingClientRect();
+                    const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
+                    const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
+                    return { x: clientX - r.left, y: clientY - r.top };
+                };
+                const start = (e) => { e.preventDefault(); drawing = true; const p = getXY(e); this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y); if (!this.state.build.find(i => i.id === this.state.selected.id)) this.state.build.push(this.state.selected); };
+                const move = (e) => { if (!drawing) return; e.preventDefault(); const p = getXY(e); this.ctx.lineTo(p.x, p.y); this.ctx.stroke(); };
+                const end = () => drawing = false;
+                this.canvas.onmousedown = start; this.canvas.onmousemove = move; this.canvas.onmouseup = end;
+                this.canvas.ontouchstart = start; this.canvas.ontouchmove = move; this.canvas.ontouchend = end;
+            }
+
+            disableSauce() {
+                this.state.sauceMode = false;
+                document.getElementById('layer-sauce').style.pointerEvents = 'none';
+                this.canvas.onmousedown = null; this.canvas.ontouchstart = null;
+            }
+
+            finish() {
+                const t = document.getElementById('top-bread');
+                t.style.opacity = 1; t.style.transform = "translateY(0)";
+                setTimeout(() => {
+                    this.calcScore();
+                    document.getElementById('scene-score').classList.remove('hidden-force');
+                    setTimeout(() => {
+                        document.getElementById('score-card').classList.remove('scale-95', 'opacity-0');
+                        document.getElementById('score-card').classList.add('scale-100', 'opacity-100');
+                    }, 50);
+                }, 600);
+            }
+
+            calcScore() {
+                let score = 100; const logs = []; const built = this.state.build; const reqs = this.state.ticket.items;
+                try {
+                    reqs.forEach(req => {
+                        const found = built.filter(b => b.id === req.id).length;
+                        if (req.type === 'sauce') { if (req.qty > 0 && found === 0) { score -= 10; logs.push(`Missing Sauce: ${req.name}`); } }
+                        else { const diff = Math.abs(found - req.qty); if (diff > 0) { score -= (diff * 10); logs.push(`${req.name}: Expected ${req.qty}, used ${found}`); } }
+                    });
+                    const extras = built.filter(b => !reqs.find(r => r.id === b.id));
+                    if (extras.length > 0) { score -= (extras.length * 5); logs.push(`Wrong Ingredients: ${extras.length} added`); }
+                    if (score < 0) score = 0;
+                    document.getElementById('score-val').innerText = `${score}%`;
+                    const logDiv = document.getElementById('score-log');
+                    if (score === 100) logDiv.innerHTML = `<span class="text-green-600 font-bold">Perfect Sandwich!</span>`;
+                    else logDiv.innerHTML = logs.map(l => `<div class="border-b py-1 border-gray-200">${l}</div>`).join('');
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById('score-val').innerText = "ERR";
+                    document.getElementById('score-log').innerHTML = "Scoring Error. Check console.";
+                }
+            }
         }
-    }
-}
 
-const game = new Game();
-</script>
+        const game = new Game();
+    </script>
 </body>
+
 </html>
