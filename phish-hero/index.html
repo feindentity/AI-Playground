@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phish Hero: The Vacuum Void</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #111;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            touch-action: none; /* Prevent zooming/scrolling on mobile */
+        }
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            background: #000;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 2px 2px 0 #000;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .song-info {
+            text-align: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 20px;
+        }
+        .song-title {
+            font-size: 1.5rem;
+            color: #f1c40f;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+        .song-subtitle {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        .btn {
+            background: #e74c3c;
+            border: 2px solid #fff;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 50px;
+            margin-top: 20px;
+            font-family: inherit;
+            transition: transform 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .donut-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background-image: radial-gradient(#e74c3c 20%, transparent 20%),
+                              radial-gradient(#e74c3c 20%, transparent 20%);
+            background-color: #2c3e50;
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+            z-index: -1;
+        }
+        .touch-zones {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            display: flex;
+            z-index: 5;
+        }
+        .touch-zone {
+            flex: 1;
+            border-top: 2px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="donut-pattern"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div id="scoreDisplay">SCORE: 0</div>
+            
+            <div class="song-info">
+                <div class="song-subtitle">NOW JAMMING</div>
+                <div id="songTitleDisplay" class="song-title">???</div>
+                <div id="venueDisplay" class="text-xs text-gray-400 mt-1">Live at The Freezer</div>
+            </div>
+
+            <div style="text-align: right;">
+                <div id="multiplierDisplay">GROOVE: 1x</div>
+                <div id="streakDisplay" class="text-sm">STREAK: 0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="start-screen">
+        <h1 class="text-4xl md:text-6xl text-center mb-4 text-purple-400 font-bold" style="text-shadow: 4px 4px 0 #e74c3c;">PHISH HERO</h1>
+        <h2 class="text-xl md:text-2xl text-center mb-8 text-blue-300">The Vacuum Void Jam</h2>
+        <div class="text-center mb-8 max-w-md px-4">
+            <p class="mb-2">Tap the lanes or use keys <strong>D, F, J, K</strong> when the donuts hit the line.</p>
+            <p class="text-sm text-gray-400">Audio required. A procedural jam will be synthesized live.</p>
+        </div>
+        <button class="btn" id="startBtn">START JAMMING</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="start-screen" style="display: none;">
+        <h1 class="text-5xl text-red-500 font-bold mb-4">SHOW OVER</h1>
+        <div id="finalScore" class="text-3xl text-white mb-6">Score: 0</div>
+        <p id="rankText" class="text-xl text-yellow-300 mb-8">Not enough hose.</p>
+        <button class="btn" id="restartBtn">ENCORE</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Invisible Touch Zones for Mobile -->
+    <div class="touch-zones" id="touchZones">
+        <div class="touch-zone" data-lane="0"></div>
+        <div class="touch-zone" data-lane="1"></div>
+        <div class="touch-zone" data-lane="2"></div>
+        <div class="touch-zone" data-lane="3"></div>
+    </div>
+
+<script>
+/**
+ * AUDIO ENGINE
+ */
+const AudioEngine = {
+    ctx: null,
+    isPlaying: false,
+    bpm: 110,
+    nextNoteTime: 0,
+    noteQueue: [],
+    lookahead: 25.0,
+    scheduleAheadTime: 0.1,
+    
+    scale: [
+        164.81, 196.00, 220.00, 246.94, 293.66, 329.63, 392.00, 440.00, 493.88, 587.33, 659.25
+    ],
+
+    init() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioContext();
+    },
+
+    playTone(freq, type = 'sawtooth', duration = 0.5, vol = 0.1, time = 0) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = type;
+        osc.frequency.value = freq;
+
+        const t = time || this.ctx.currentTime;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(vol, t + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(800, t);
+        filter.frequency.linearRampToValueAtTime(3000, t + 0.1);
+        filter.frequency.linearRampToValueAtTime(800, t + duration);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(t);
+        osc.stop(t + duration);
+    },
+
+    playBass(freq, time) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq / 2;
+        
+        const t = time;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.3, t + 0.05);
+        gain.gain.linearRampToValueAtTime(0, t + 0.4);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.5);
+    },
+
+    playDrum(type, time) {
+        if (!this.ctx) return;
+        const t = time;
+        
+        if (type === 'kick') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.frequency.setValueAtTime(150, t);
+            osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.5);
+            gain.gain.setValueAtTime(0.5, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.5);
+        } else if (type === 'snare') {
+            const bufferSize = this.ctx.sampleRate * 0.1; 
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+            const noiseGain = this.ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.3, t);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+            noise.connect(noiseGain);
+            noiseGain.connect(this.ctx.destination);
+            noise.start(t);
+        }
+    }
+};
+
+/**
+ * GAME LOGIC
+ */
+const Game = {
+    canvas: document.getElementById('gameCanvas'),
+    ctx: document.getElementById('gameCanvas').getContext('2d'),
+    width: 0,
+    height: 0,
+    
+    isPlaying: false,
+    score: 0,
+    streak: 0,
+    multiplier: 1,
+    lastTime: 0,
+    startTime: 0,
+    gameTime: 0,
+    
+    lanes: [],
+    notes: [],
+    particles: [],
+    
+    noteSpeed: 600,
+    hitWindow: 60,
+    laneColors: ['#2ecc71', '#e74c3c', '#f1c40f', '#3498db'],
+    laneKeys: ['d', 'f', 'j', 'k'],
+    
+    lightShowHue: 0,
+    lightIntensity: 0,
+    
+    // Song Names Database
+    songTitles: [
+        "Tweezer (Type II)",
+        "You Enjoy Myself",
+        "Harry Hood",
+        "Ghost",
+        "Run Like An Antelope",
+        "Chalk Dust Torture",
+        "Bathtub Gin",
+        "Weekapaug Groove",
+        "Split Open and Melt",
+        "The Moma Dance",
+        "Character Zero"
+    ],
+    venues: [
+        "Live at Madison Square Garden",
+        "Live at The Gorge",
+        "Live at Red Rocks",
+        "Live at Dick's Sporting Goods Park",
+        "Live at Big Cypress",
+        "Live at The Mothership"
+    ],
+
+    init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        
+        const laneWidth = Math.min(this.width / 4, 100);
+        const startX = (this.width - (laneWidth * 4)) / 2;
+        
+        for(let i=0; i<4; i++) {
+            this.lanes.push({
+                x: startX + (i * laneWidth),
+                width: laneWidth,
+                color: this.laneColors[i],
+                key: this.laneKeys[i],
+                pressed: false,
+                pressTime: 0
+            });
+        }
+
+        this.bindInput();
+        this.loop = this.loop.bind(this);
+    },
+
+    resize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        
+        const laneWidth = Math.min(this.width / 4, 100);
+        const startX = (this.width - (laneWidth * 4)) / 2;
+        if (this.lanes.length > 0) {
+            for(let i=0; i<4; i++) {
+                this.lanes[i].x = startX + (i * laneWidth);
+                this.lanes[i].width = laneWidth;
+            }
+        }
+    },
+
+    bindInput() {
+        window.addEventListener('keydown', (e) => {
+            if (!this.isPlaying) return;
+            const idx = this.laneKeys.indexOf(e.key.toLowerCase());
+            if (idx !== -1) this.handleInput(idx, true);
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const idx = this.laneKeys.indexOf(e.key.toLowerCase());
+            if (idx !== -1) this.handleInput(idx, false);
+        });
+
+        const zones = document.querySelectorAll('.touch-zone');
+        zones.forEach(zone => {
+            zone.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (!this.isPlaying) return;
+                const laneIdx = parseInt(zone.dataset.lane);
+                this.handleInput(laneIdx, true);
+            });
+            zone.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const laneIdx = parseInt(zone.dataset.lane);
+                this.handleInput(laneIdx, false);
+            });
+        });
+    },
+
+    handleInput(laneIdx, isPressed) {
+        const lane = this.lanes[laneIdx];
+        lane.pressed = isPressed;
+        
+        if (isPressed) {
+            lane.pressTime = Date.now();
+            this.checkHit(laneIdx);
+        }
+    },
+
+    checkHit(laneIdx) {
+        const now = AudioEngine.ctx.currentTime;
+        const candidates = this.notes.filter(n => n.lane === laneIdx && !n.hit);
+        
+        if (candidates.length === 0) return;
+
+        let bestNote = null;
+        let minDiff = Infinity;
+
+        candidates.forEach(note => {
+            const diff = Math.abs(note.time - now);
+            if (diff < minDiff) {
+                minDiff = diff;
+                bestNote = note;
+            }
+        });
+
+        const hitThreshold = 0.15; 
+
+        if (bestNote && minDiff < hitThreshold) {
+            bestNote.hit = true;
+            this.score += 10 * this.multiplier;
+            this.streak++;
+            if (this.streak % 10 === 0 && this.streak > 0) this.multiplier = Math.min(this.multiplier + 1, 4);
+            
+            AudioEngine.playTone(bestNote.freq, 'sawtooth', 0.4, 0.15);
+            
+            this.spawnParticles(this.lanes[laneIdx].x + this.lanes[laneIdx].width/2, this.height - 100, this.lanes[laneIdx].color);
+            this.triggerLightFlash();
+            
+            this.updateHUD();
+        } else {
+            this.streak = 0;
+            this.multiplier = 1;
+            this.updateHUD();
+        }
+    },
+
+    spawnParticles(x, y, color) {
+        for(let i=0; i<10; i++) {
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10 - 5,
+                life: 1.0,
+                color: color
+            });
+        }
+    },
+
+    triggerLightFlash() {
+        this.lightIntensity = 0.6;
+        this.lightShowHue = (this.lightShowHue + 40) % 360;
+    },
+
+    pickRandomSong() {
+        const randomTitle = this.songTitles[Math.floor(Math.random() * this.songTitles.length)];
+        const randomVenue = this.venues[Math.floor(Math.random() * this.venues.length)];
+        document.getElementById('songTitleDisplay').innerText = randomTitle;
+        document.getElementById('venueDisplay').innerText = randomVenue;
+    },
+
+    start() {
+        AudioEngine.init();
+        this.pickRandomSong(); // Pick song name
+        
+        this.isPlaying = true;
+        this.score = 0;
+        this.streak = 0;
+        this.multiplier = 1;
+        this.notes = [];
+        this.particles = [];
+        
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('gameOverScreen').style.display = 'none';
+        this.updateHUD();
+
+        this.startTime = AudioEngine.ctx.currentTime;
+        AudioEngine.nextNoteTime = this.startTime + 2.0; 
+        
+        this.loop();
+    },
+
+    updateHUD() {
+        document.getElementById('scoreDisplay').innerText = `SCORE: ${this.score}`;
+        document.getElementById('multiplierDisplay').innerText = `GROOVE: ${this.multiplier}x`;
+        document.getElementById('streakDisplay').innerText = `STREAK: ${this.streak}`;
+    },
+
+    scheduler() {
+        while (AudioEngine.nextNoteTime < AudioEngine.ctx.currentTime + AudioEngine.scheduleAheadTime + 2.0) { 
+            this.scheduleNote(AudioEngine.nextNoteTime);
+        }
+    },
+
+    scheduleNote(time) {
+        const lane = Math.floor(Math.random() * 4);
+        const freq = AudioEngine.scale[Math.floor(Math.random() * AudioEngine.scale.length)];
+        
+        const exists = this.notes.find(n => Math.abs(n.time - time) < 0.01);
+        if (!exists) {
+            this.notes.push({
+                lane: lane,
+                time: time,
+                freq: freq,
+                hit: false,
+                missed: false
+            });
+        }
+
+        const bassFreq = (Math.random() > 0.5) ? 82.41 : 123.47; 
+        AudioEngine.playBass(bassFreq, time);
+        
+        AudioEngine.playDrum('kick', time);
+        AudioEngine.playDrum('snare', time + (60/AudioEngine.bpm)); 
+
+        const r = Math.random();
+        let beatDuration = 60 / AudioEngine.bpm; 
+        if (r > 0.7) beatDuration /= 2; 
+        if (r > 0.9) beatDuration /= 4; 
+        
+        AudioEngine.nextNoteTime += beatDuration;
+    },
+
+    update() {
+        const now = AudioEngine.ctx.currentTime;
+        
+        for (let i = this.notes.length - 1; i >= 0; i--) {
+            const note = this.notes[i];
+            
+            if (!note.hit && note.time < now - 0.2) {
+                if (!note.missed) {
+                    note.missed = true;
+                    this.streak = 0;
+                    this.multiplier = 1;
+                    this.updateHUD();
+                }
+            }
+
+            if (now > note.time + 1) {
+                this.notes.splice(i, 1);
+            }
+        }
+
+        this.scheduler();
+
+        this.particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.5; 
+            p.life -= 0.02;
+        });
+        this.particles = this.particles.filter(p => p.life > 0);
+
+        this.lightIntensity *= 0.95;
+    },
+
+    draw() {
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        if (this.lightIntensity > 0.01) {
+            this.ctx.globalCompositeOperation = 'screen';
+            const gradient = this.ctx.createRadialGradient(this.width/2, 0, 50, this.width/2, this.height/2, this.width);
+            gradient.addColorStop(0, `hsla(${this.lightShowHue}, 100%, 50%, ${this.lightIntensity})`);
+            gradient.addColorStop(1, 'transparent');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.width, this.height);
+            this.ctx.globalCompositeOperation = 'source-over';
+        }
+
+        const boardTopWidth = this.lanes[3].x + this.lanes[3].width - this.lanes[0].x; 
+        
+        this.lanes.forEach(lane => {
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            this.ctx.fillRect(lane.x, 0, lane.width, this.height);
+            
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            this.ctx.beginPath();
+            this.ctx.moveTo(lane.x, 0);
+            this.ctx.lineTo(lane.x, this.height);
+            this.ctx.stroke();
+
+            const targetY = this.height - 100;
+            
+            this.ctx.fillStyle = lane.pressed ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0,0,0,0.5)';
+            this.ctx.beginPath();
+            this.ctx.arc(lane.x + lane.width/2, targetY, lane.width * 0.4, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.lineWidth = 4;
+            this.ctx.strokeStyle = lane.color;
+            this.ctx.stroke();
+            
+            this.ctx.strokeStyle = '#e74c3c'; 
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.arc(lane.x + lane.width/2, targetY, lane.width * 0.2, 0, Math.PI * 2);
+            this.ctx.stroke();
+        });
+
+        const now = AudioEngine.ctx.currentTime;
+        const targetY = this.height - 100;
+        const speed = this.noteSpeed; 
+
+        this.notes.forEach(note => {
+            if (note.hit) return; 
+            
+            const timeDiff = note.time - now;
+            const y = targetY - (timeDiff * speed);
+
+            if (y > -50 && y < this.height + 50) {
+                const lane = this.lanes[note.lane];
+                
+                this.ctx.fillStyle = lane.color;
+                this.ctx.beginPath();
+                this.ctx.arc(lane.x + lane.width/2, y, lane.width * 0.35, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.fillStyle = '#2c3e50'; 
+                this.ctx.beginPath();
+                this.ctx.arc(lane.x + lane.width/2, y, lane.width * 0.15, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                this.ctx.beginPath();
+                this.ctx.arc(lane.x + lane.width/2 - lane.width*0.1, y - lane.width*0.1, lane.width * 0.05, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        });
+
+        this.particles.forEach(p => {
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = p.life;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1.0;
+        });
+    },
+
+    loop() {
+        if (!this.isPlaying) return;
+        
+        this.update();
+        this.draw();
+        
+        requestAnimationFrame(this.loop);
+    }
+};
+
+document.getElementById('startBtn').addEventListener('click', () => {
+    Game.init();
+    Game.start();
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+    Game.start();
+});
+
+</script>
+</body>
+</html>
