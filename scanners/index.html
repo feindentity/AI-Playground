@@ -217,9 +217,6 @@
             <p style="color:#ada; margin-top:20px;">Use ARROWS to Aim/Move</p>
             <p style="color:#ada">Hold SPACE to Scan</p>
             <div class="btn" onclick="startGame()">ENTER</div>
-            <div class="d-btn d-down" data-key="ArrowDown"></div>
-            <div class="d-btn d-left" data-key="ArrowLeft"></div>
-            <div class="d-btn d-right" data-key="ArrowRight"></div>
         </div>
 
         <div id="game-over-screen" style="display: none;">
@@ -231,7 +228,15 @@
                 TO HOME</a>
         </div>
 
-        <div id="action-btn" class="control-group" data-key="Space">SCAN</div>
+        <div id="mobile-controls">
+            <div id="dpad" class="control-group">
+                <div class="d-btn d-up" data-key="ArrowUp"></div>
+                <div class="d-btn d-down" data-key="ArrowDown"></div>
+                <div class="d-btn d-left" data-key="ArrowLeft"></div>
+                <div class="d-btn d-right" data-key="ArrowRight"></div>
+            </div>
+            <div id="action-btn" class="control-group" data-key="Space">SCAN</div>
+        </div>
     </div>
 
     <script>
