@@ -80,8 +80,12 @@
         const Download = (props) => <IconBase {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></IconBase>;
 
         // --- Syllable Counting Logic (Heuristic) ---
+        // This function estimates the number of syllables in a given text.
+        // It uses a heuristic approach based on vowel patterns and common English endings,
+        // providing a close approximation without a full dictionary.
         const countSyllables = (text) => {
             if (!text) return 0;
+            // Clean text: lowercase, remove non-alpha characters, split into words
             const words = text.toLowerCase().replace(/[^a-z ]/g, '').split(' ').filter(w => w.length > 0);
 
             let totalSyllables = 0;
@@ -101,6 +105,9 @@
         };
 
         // --- Sonnet Configuration Data ---
+        // Defines the structure for different sonnet types.
+        // 'scheme' maps each line index (0-13) to a rhyme letter (A, B, C...).
+        // 'guide' maps those letters to visual colors.
         const MODES = {
             shakespearean: {
                 name: "Shakespearean",
@@ -167,7 +174,8 @@
                 setCurrentLineIndex(Math.min(lineIndex, 13)); // Cap at 13 for stats
             };
 
-            // Fetch rhymes
+            // Fetch rhymes using the Datamuse API (https://www.datamuse.com/api/)
+            // Queries for words that rhyme with the user's input.
             const searchRhymes = async (e) => {
                 e.preventDefault();
                 if (!rhymeQuery) return;
