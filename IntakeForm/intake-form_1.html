@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Planning Intake Form</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #faf9f6;
+    --cream: #f5f0e8;
+    --rule: #c9b99a;
+    --accent: #6b4c3b;
+    --accent-light: #8b6f5e;
+    --field-bg: #fffdf8;
+    --field-border: #d4c5a9;
+    --field-focus: #6b4c3b;
+    --section-bg: #f0ebe0;
+    --note-bg: #e8e0d0;
+    --red: #9b3b3b;
+    --green: #3b6b4c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #e8e0d0;
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px 40px 40px;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.015) 20px,
+      rgba(255,255,255,0.015) 40px
+    );
+  }
+
+  .form-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .form-header .subtitle {
+    font-weight: 300;
+    font-size: 15px;
+    opacity: 0.7;
+    position: relative;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .form-header .instruction {
+    margin-top: 16px;
+    font-size: 13px;
+    opacity: 0.55;
+    position: relative;
+    font-style: italic;
+  }
+
+  .form-body {
+    background: var(--paper);
+    padding: 0 40px 40px;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  }
+
+  .section {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  .section-number {
+    display: inline-block;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--paper);
+    background: var(--accent);
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    display: inline;
+    vertical-align: middle;
+  }
+
+  .section-desc {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--accent-light);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .field-group {
+    margin-top: 18px;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .field-row > .field { flex: 1; }
+
+  .field {
+    margin-top: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .field input[type="text"],
+  .field input[type="tel"],
+  .field input[type="number"],
+  .field input[type="date"],
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--field-border);
+    border-radius: 6px;
+    background: var(--field-bg);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--field-focus);
+    box-shadow: 0 0 0 3px rgba(107,76,59,0.1);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .radio-group, .check-group {
+    display: flex;
+    gap: 16px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .radio-group label, .check-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 6px 14px;
+    border: 1.5px solid var(--field-border);
+    border-radius: 6px;
+    background: var(--field-bg);
+    transition: all 0.15s;
+  }
+
+  .radio-group label:has(input:checked),
+  .check-group label:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(107,76,59,0.08);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .radio-group input, .check-group input {
+    accent-color: var(--accent);
+  }
+
+  .note-box {
+    background: var(--note-bg);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    margin-top: 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: var(--accent-light);
+    line-height: 1.55;
+  }
+
+  .note-box strong { color: var(--accent); }
+
+  .repeater {
+    margin-top: 12px;
+  }
+
+  .repeater-item {
+    background: var(--cream);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 10px;
+    position: relative;
+  }
+
+  .repeater-item .remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    font-size: 18px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .repeater-item .remove-btn:hover {
+    background: rgba(155,59,59,0.1);
+  }
+
+  .add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: none;
+    border: 1.5px dashed var(--rule);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .add-btn:hover {
+    border-color: var(--accent);
+    background: rgba(107,76,59,0.04);
+  }
+
+  .subsection-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 20px;
+    margin-bottom: 4px;
+  }
+
+  /* Export bar */
+  .export-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--ink);
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 12px 12px;
+    margin-top: -1px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    z-index: 100;
+  }
+
+  .export-bar .status {
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+  }
+
+  .export-btn {
+    padding: 12px 32px;
+    background: var(--accent);
+    color: var(--paper);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+
+  .export-btn:hover {
+    background: var(--accent-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107,76,59,0.3);
+  }
+
+  .export-btn:active { transform: translateY(0); }
+
+  @media (max-width: 700px) {
+    .page-wrapper { padding: 10px; }
+    .form-header { padding: 30px 20px; }
+    .form-body { padding: 0 20px 20px; }
+    .field-row { flex-direction: column; gap: 0; }
+    .export-bar { padding: 12px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="form-header">
+    <h1>Estate Planning Intake</h1>
+    <div class="subtitle">Will & Testament Questionnaire</div>
+    <div class="instruction">Please complete every item on this form. If any item does not apply, enter N/A.</div>
+  </div>
+
+  <div class="form-body" id="formBody">
+
+    <!-- 1. GENERAL INFORMATION -->
+    <div class="section">
+      <span class="section-number">1</span>
+      <span class="section-title">General Information</span>
+
+      <div class="field-row">
+        <div class="field"><label>First Name</label><input type="text" id="firstName"></div>
+        <div class="field"><label>Middle Name</label><input type="text" id="middleName"></div>
+        <div class="field"><label>Last Name</label><input type="text" id="lastName"></div>
+      </div>
+
+      <div class="field">
+        <label>Other names / Maiden name</label>
+        <input type="text" id="otherNames">
+      </div>
+
+      <div class="field-row">
+        <div class="field"><label>Telephone</label><input type="tel" id="phone"></div>
+        <div class="field"><label>Age</label><input type="number" id="age"></div>
+        <div class="field"><label>Date of Birth</label><input type="date" id="dob"></div>
+      </div>
+
+      <div class="field">
+        <label>Sex</label>
+        <div class="radio-group">
+          <label><input type="radio" name="sex" value="Male"> Male</label>
+          <label><input type="radio" name="sex" value="Female"> Female</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. RESIDENCE -->
+    <div class="section">
+      <span class="section-number">2</span>
+      <span class="section-title">Current Residence</span>
+
+      <div class="field-row">
+        <div class="field"><label>Street Number</label><input type="text" id="streetNum"></div>
+        <div class="field" style="flex:2"><label>Street</label><input type="text" id="street"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Town / City</label><input type="text" id="city"></div>
+        <div class="field"><label>State</label><input type="text" id="state"></div>
+        <div class="field"><label>Zip Code</label><input type="text" id="zip"></div>
+      </div>
+
+      <div class="field">
+        <label>Dwelling Type</label>
+        <div class="radio-group">
+          <label><input type="radio" name="dwelling" value="House"> House</label>
+          <label><input type="radio" name="dwelling" value="Apartment"> Apartment</label>
+          <label><input type="radio" name="dwelling" value="Condominium"> Condominium</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>If house/condo, owned jointly?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="joint" value="Yes"> Yes</label>
+          <label><input type="radio" name="joint" value="No"> No</label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field"><label>Co-owner Name</label><input type="text" id="coOwnerName"></div>
+        <div class="field"><label>Co-owner Address</label><input type="text" id="coOwnerAddr"></div>
+      </div>
+    </div>
+
+    <!-- 3. SPOUSE -->
+    <div class="section">
+      <span class="section-number">3</span>
+      <span class="section-title">Spouse Information</span>
+
+      <div class="field-row">
+        <div class="field"><label>Spouse First Name</label><input type="text" id="spouseFirst"></div>
+        <div class="field"><label>Spouse Middle</label><input type="text" id="spouseMiddle"></div>
+        <div class="field"><label>Spouse Last Name</label><input type="text" id="spouseLast"></div>
+      </div>
+      <div class="field"><label>Spouse Address</label><input type="text" id="spouseAddr"></div>
+      <div class="field"><label>If spouse is deceased, please state</label><input type="text" id="spouseDeceased"></div>
+      <div class="field"><label>Prior marriage — name of ex-spouse</label><input type="text" id="exSpouse"></div>
+    </div>
+
+    <!-- 4. CHILDREN -->
+    <div class="section">
+      <span class="section-number">4</span>
+      <span class="section-title">Children</span>
+      <div class="section-desc">List all children</div>
+      <div class="repeater" id="childrenRepeater"></div>
+      <button class="add-btn" onclick="addChild()">+ Add Child</button>
+
+      <div class="subsection-label" style="margin-top:24px">Step-Children</div>
+      <div class="section-desc">List all step-children</div>
+      <div class="repeater" id="stepChildrenRepeater"></div>
+      <button class="add-btn" onclick="addStepChild()">+ Add Step-Child</button>
+
+      <div class="field" style="margin-top:20px">
+        <label>Treatment of Children & Step-Children</label>
+        <div class="radio-group">
+          <label><input type="radio" name="childTreatment" value="same"> Treat the same</label>
+          <label><input type="radio" name="childTreatment" value="different"> Divide differently</label>
+        </div>
+      </div>
+      <div class="field"><label>If dividing differently, specify</label><textarea id="childDivision"></textarea></div>
+    </div>
+
+    <!-- 5. GRANDCHILDREN -->
+    <div class="section">
+      <span class="section-number">5</span>
+      <span class="section-title">Grandchildren</span>
+      <div class="repeater" id="grandchildrenRepeater"></div>
+      <button class="add-btn" onclick="addGrandchild()">+ Add Grandchild</button>
+    </div>
+
+    <!-- 6. GREAT GRANDCHILDREN -->
+    <div class="section">
+      <span class="section-number">6</span>
+      <span class="section-title">Great Grandchildren</span>
+      <div class="repeater" id="greatGrandchildrenRepeater"></div>
+      <button class="add-btn" onclick="addGreatGrandchild()">+ Add Great Grandchild</button>
+    </div>
+
+    <!-- 7. DISINHERITANCE -->
+    <div class="section">
+      <span class="section-number">7</span>
+      <span class="section-title">Disinheritance</span>
+      <div class="section-desc">Family members you do not wish to include in the will</div>
+      <div class="repeater" id="disinheritRepeater"></div>
+      <button class="add-btn" onclick="addDisinherit()">+ Add Entry</button>
+    </div>
+
+    <!-- 8. IN TERROREM -->
+    <div class="section">
+      <span class="section-number">8</span>
+      <span class="section-title">In Terrorem (No Contest) Clause</span>
+      <div class="note-box"><strong>Note:</strong> This provision prevents any beneficiary from receiving property under the will if they contest it without good faith and probable cause.</div>
+      <div class="field">
+        <label>Include In Terrorem Clause?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="inTerrorem" value="Yes"> Yes, include</label>
+          <label><input type="radio" name="inTerrorem" value="No"> No, do not include</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. EXECUTOR -->
+    <div class="section">
+      <span class="section-number">9</span>
+      <span class="section-title">Executor / Executrix</span>
+      <div class="note-box"><strong>Note:</strong> An Executor is the person you appoint to carry out the directions in your Will and to dispose of your property according to its provisions. Normally, your spouse would serve unless you designate otherwise.</div>
+
+      <div class="subsection-label">Primary Executor</div>
+      <div class="field"><label>Name</label><input type="text" id="execName"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="execAddr"></div>
+        <div class="field"><label>Telephone</label><input type="tel" id="execPhone"></div>
+      </div>
+
+      <div class="subsection-label">Substitute (Backup) Executor</div>
+      <div class="field"><label>Name</label><input type="text" id="execName2"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="execAddr2"></div>
+        <div class="field"><label>Telephone</label><input type="tel" id="execPhone2"></div>
+      </div>
+    </div>
+
+    <!-- 10. GUARDIANS -->
+    <div class="section">
+      <span class="section-number">10</span>
+      <span class="section-title">Guardians</span>
+      <div class="note-box"><strong>Note:</strong> If your children are under 18, name a guardian. A guardian does not inherit any portion of your estate unless you so desire. If married, a Guardian is only appointed if both you and your spouse are deceased.</div>
+
+      <div class="subsection-label">Guardian 1</div>
+      <div class="field"><label>Name</label><input type="text" id="guard1Name"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="guard1Addr"></div>
+        <div class="field"><label>Phone</label><input type="tel" id="guard1Phone"></div>
+      </div>
+      <div class="field"><label>Relationship</label><input type="text" id="guard1Rel"></div>
+
+      <div class="subsection-label">Guardian 2</div>
+      <div class="field"><label>Name</label><input type="text" id="guard2Name"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="guard2Addr"></div>
+        <div class="field"><label>Phone</label><input type="tel" id="guard2Phone"></div>
+      </div>
+      <div class="field"><label>Relationship</label><input type="text" id="guard2Rel"></div>
+    </div>
+
+    <!-- 11. TRUST -->
+    <div class="section">
+      <span class="section-number">11</span>
+      <span class="section-title">Trust</span>
+      <div class="note-box"><strong>Note:</strong> If you have children/step-children/grandchildren under 18, you may create a trust whereby property is held until the child reaches age 18 or 21. A Trustee manages the trust funds for the children.</div>
+
+      <div class="subsection-label">Trustee 1</div>
+      <div class="field"><label>Name</label><input type="text" id="trust1Name"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="trust1Addr"></div>
+        <div class="field"><label>Phone</label><input type="tel" id="trust1Phone"></div>
+      </div>
+      <div class="field"><label>Relationship</label><input type="text" id="trust1Rel"></div>
+
+      <div class="subsection-label">Trustee 2</div>
+      <div class="field"><label>Name</label><input type="text" id="trust2Name"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="trust2Addr"></div>
+        <div class="field"><label>Phone</label><input type="tel" id="trust2Phone"></div>
+      </div>
+      <div class="field"><label>Relationship</label><input type="text" id="trust2Rel"></div>
+    </div>
+
+    <!-- 12. BOND -->
+    <div class="section">
+      <span class="section-number">12</span>
+      <span class="section-title">Bond</span>
+      <div class="note-box"><strong>Note:</strong> Customarily, the Executor, Guardian, and Trustee serve without bond. If any serves with a bond, your estate will have to post the bond premium each year.</div>
+      <div class="field">
+        <label>Serve without bond?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="bond" value="Yes"> Yes (recommended)</label>
+          <label><input type="radio" name="bond" value="No"> No</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13. ASSETS -->
+    <div class="section">
+      <span class="section-number">13</span>
+      <span class="section-title">Assets</span>
+
+      <div class="subsection-label">13(a) Real Estate</div>
+      <div class="repeater" id="realEstateRepeater"></div>
+      <button class="add-btn" onclick="addRealEstate()">+ Add Property</button>
+
+      <div class="subsection-label" style="margin-top:24px">13(b) Personal Possessions</div>
+      <div class="section-desc">Cars, boats, motorcycles, collections, jewelry, etc.</div>
+      <div class="repeater" id="possessionsRepeater"></div>
+      <button class="add-btn" onclick="addPossession()">+ Add Item</button>
+
+      <div class="subsection-label" style="margin-top:24px">13(c) Bank Accounts</div>
+      <div class="repeater" id="bankRepeater"></div>
+      <button class="add-btn" onclick="addBank()">+ Add Account</button>
+
+      <div class="subsection-label" style="margin-top:24px">13(d) Investments (Stocks, Bonds, IRA, 401K, etc.)</div>
+      <div class="repeater" id="investRepeater"></div>
+      <button class="add-btn" onclick="addInvestment()">+ Add Account</button>
+
+      <div class="subsection-label" style="margin-top:24px">13(e) Life Insurance</div>
+      <div class="repeater" id="lifeInsRepeater"></div>
+      <button class="add-btn" onclick="addLifeIns()">+ Add Policy</button>
+
+      <div class="subsection-label" style="margin-top:24px">13(f) Pension</div>
+      <div class="repeater" id="pensionRepeater"></div>
+      <button class="add-btn" onclick="addPension()">+ Add Pension</button>
+    </div>
+
+    <!-- 14. FUTURE INHERITANCE -->
+    <div class="section">
+      <span class="section-number">14</span>
+      <span class="section-title">Future Inheritance</span>
+      <div class="field">
+        <label>Do you expect a substantial inheritance within 6 months?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="futureInherit" value="Yes"> Yes</label>
+          <label><input type="radio" name="futureInherit" value="No"> No</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15. PROPERTY DIVISION -->
+    <div class="section">
+      <span class="section-number">15</span>
+      <span class="section-title">Property Division — Residuary Clause</span>
+      <div class="section-desc">Most property will pass through your "Residuary Clause" — this is the rest, residue, and remainder of your estate, rather than specific gifts discussed below. This covers everything other than specific gifts to specific individuals or organizations.</div>
+      <div class="note-box" style="margin-bottom:12px; margin-top:14px"><strong>Per Capita:</strong> Estate distributed to all living children; if a child predeceases you, their share goes to the remaining children equally.<br><strong>Per Stirpes:</strong> Estate distributed to all living children; if a child predeceases you, their share goes to their children (your grandchildren).</div>
+
+      <div class="subsection-label">15(a) If Married</div>
+      <div class="section-desc">Generally, most married people provide that property passes to their surviving spouse, then to children, then to grandchildren, etc. Property can also go to extended family, friends, or organizations. In the event you are not survived by any family, friends, or organizations, you may wish to have property go to a charity rather than let your estate pass to the State.</div>
+      <div class="field">
+        <div class="check-group" style="flex-direction:column">
+          <label><input type="checkbox" name="married1" value="1"> To surviving spouse</label>
+          <label><input type="checkbox" name="married2" value="2"> If spouse predeceases — divide equally among living children (Per Capita)</label>
+          <label><input type="checkbox" name="married3" value="3"> If spouse &amp; a child predecease — that child's share to their children (Per Stirpes)</label>
+          <label><input type="checkbox" name="married4" value="4"> If spouse, children &amp; grandchildren predecease — pass to alternate</label>
+          <label><input type="checkbox" name="married5" value="5"> Charity</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Alternate recipient (option 4)</label><input type="text" id="marriedAlt"></div>
+        <div class="field"><label>Charity name (option 5)</label><input type="text" id="marriedCharity"></div>
+      </div>
+
+      <div class="subsection-label" style="margin-top:20px">15(b) If Unmarried with Children</div>
+      <div class="section-desc">Most unmarried persons with children provide that property passes to their children, then to grandchildren, etc. Property can also go to extended family, friends, or organizations. In the event you are not survived by any family or friends, you may wish to have property go to a charity rather than let your estate pass to the State.</div>
+      <div class="field">
+        <div class="check-group" style="flex-direction:column">
+          <label><input type="checkbox" name="unmarried1" value="1"> Divide equally among living children (Per Capita)</label>
+          <label><input type="checkbox" name="unmarried2" value="2"> If a child predeceases — share to their children (Per Stirpes)</label>
+          <label><input type="checkbox" name="unmarried3" value="3"> If all children &amp; grandchildren predecease — pass to alternate</label>
+          <label><input type="checkbox" name="unmarried4" value="4"> Charity</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Alternate recipient (option 3)</label><input type="text" id="unmarriedAlt"></div>
+        <div class="field"><label>Charity name (option 4)</label><input type="text" id="unmarriedCharity"></div>
+      </div>
+    </div>
+
+    <!-- 16. CUSTOM DISTRIBUTION -->
+    <div class="section">
+      <span class="section-number">16</span>
+      <span class="section-title">Custom Distribution</span>
+      <div class="section-desc">If you do not wish your property to pass in the manner above, describe your preferences.</div>
+      <div class="field"><textarea id="customDistribution" rows="4"></textarea></div>
+    </div>
+
+    <!-- 17. SPECIFIC GIFTS -->
+    <div class="section">
+      <span class="section-number">17</span>
+      <span class="section-title">Specific Gifts</span>
+      <div class="section-desc">Property you wish to go to a particular individual rather than be divided generally.</div>
+      <div class="repeater" id="giftsRepeater"></div>
+      <button class="add-btn" onclick="addGift()">+ Add Specific Gift</button>
+    </div>
+
+    <!-- 18. LIVING WILL -->
+    <div class="section">
+      <span class="section-number">18</span>
+      <span class="section-title">Living Will</span>
+      <div class="note-box"><strong>Note:</strong> A Living Will directs your physician regarding medical care when you are incapacitated. It directs that death not be unreasonably prolonged in terminal situations — it does not intend the direct taking of life.</div>
+
+      <div class="field">
+        <label>Do you wish to have a Living Will?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="livingWill" value="Yes"> Yes</label>
+          <label><input type="radio" name="livingWill" value="No"> No</label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Wish to be resuscitated?</label>
+          <div class="radio-group"><label><input type="radio" name="resuscitate" value="Yes"> Yes</label><label><input type="radio" name="resuscitate" value="No"> No</label></div>
+        </div>
+        <div class="field">
+          <label>Kept alive on life support?</label>
+          <div class="radio-group"><label><input type="radio" name="lifeSupport" value="Yes"> Yes</label><label><input type="radio" name="lifeSupport" value="No"> No</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>If life support, for how long?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="lifeSupportDur" value="1 year"> 1 Year</label>
+          <label><input type="radio" name="lifeSupportDur" value="6 months"> 6 Months</label>
+          <label><input type="radio" name="lifeSupportDur" value="Other"> Other</label>
+        </div>
+      </div>
+      <div class="field"><label>Other duration (if applicable)</label><input type="text" id="lifeSupportOther"></div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Pain medications if in pain?</label>
+          <div class="radio-group"><label><input type="radio" name="painMeds" value="Yes"> Yes</label><label><input type="radio" name="painMeds" value="No"> No</label></div>
+        </div>
+        <div class="field">
+          <label>Blood transfusions?</label>
+          <div class="radio-group"><label><input type="radio" name="transfusions" value="Yes"> Yes</label><label><input type="radio" name="transfusions" value="No"> No</label></div>
+        </div>
+      </div>
+
+      <div class="subsection-label">Healthcare Decision Maker</div>
+      <div class="field"><label>Name</label><input type="text" id="healthName"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="healthAddr"></div>
+        <div class="field"><label>Relationship</label><input type="text" id="healthRel"></div>
+      </div>
+
+      <div class="subsection-label">Backup Decision Maker</div>
+      <div class="field"><label>Name</label><input type="text" id="healthName2"></div>
+      <div class="field-row">
+        <div class="field"><label>Address</label><input type="text" id="healthAddr2"></div>
+        <div class="field"><label>Relationship</label><input type="text" id="healthRel2"></div>
+      </div>
+    </div>
+
+    <!-- 19. OTHER OPTIONS -->
+    <div class="section">
+      <span class="section-number">19</span>
+      <span class="section-title">Final Wishes</span>
+      <div class="section-desc">Check all that apply and fill in the details.</div>
+
+      <div class="field" style="margin-top:16px">
+        <div class="check-group" style="flex-direction:column; gap:10px">
+          <label><input type="checkbox" id="optCremation"> I wish to be cremated</label>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <div class="check-group" style="flex-direction:column; gap:10px">
+          <label><input type="checkbox" id="optAshes"> I wish to have my ashes disposed of as follows:</label>
+        </div>
+      </div>
+      <div class="field" style="margin-left:32px"><label>Details</label><input type="text" id="ashesDisposal"></div>
+
+      <div class="field" style="margin-top:10px">
+        <div class="check-group" style="flex-direction:column; gap:10px">
+          <label><input type="checkbox" id="optCeremony"> I wish to have a ceremony</label>
+        </div>
+      </div>
+      <div class="field" style="margin-left:32px"><label>Type of ceremony</label><input type="text" id="ceremony"></div>
+
+      <div class="field" style="margin-top:10px">
+        <div class="check-group" style="flex-direction:column; gap:10px">
+          <label><input type="checkbox" id="optBurial"> I wish to be buried in a specific cemetery</label>
+        </div>
+      </div>
+      <div class="field-row" style="margin-left:32px">
+        <div class="field"><label>Cemetery name</label><input type="text" id="cemetery"></div>
+        <div class="field"><label>Cemetery location</label><input type="text" id="cemeteryLoc"></div>
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <div class="check-group" style="flex-direction:column; gap:10px">
+          <label><input type="checkbox" id="optMilitary"> I served in the U.S. Military and wish to have a military ceremony</label>
+        </div>
+      </div>
+      <div class="field-row" style="margin-left:32px">
+        <div class="field"><label>Branch of service</label><input type="text" id="milBranch"></div>
+        <div class="field"><label>Ceremony type</label><input type="text" id="milCeremony"></div>
+      </div>
+
+      <div class="field" style="margin-top:10px">
+        <div class="check-group" style="flex-direction:column; gap:10px">
+          <label><input type="checkbox" id="optOtherWishes"> Other wishes</label>
+        </div>
+      </div>
+      <div class="field" style="margin-left:32px"><textarea id="otherWishes" rows="3" placeholder="Describe any additional wishes..."></textarea></div>
+    </div>
+
+  </div><!-- end form-body -->
+
+  <div class="export-bar">
+    <span class="status">Fill out the form above, then export.</span>
+    <button class="export-btn" onclick="exportPDF()">Export as PDF</button>
+  </div>
+</div>
+
+<script>
+// === Repeater Helpers ===
+let counters = {};
+
+function makeRepeaterItem(containerId, fields, type) {
+  if (!counters[type]) counters[type] = 0;
+  counters[type]++;
+  const idx = counters[type];
+  const container = document.getElementById(containerId);
+  const item = document.createElement('div');
+  item.className = 'repeater-item';
+  item.dataset.type = type;
+  item.dataset.idx = idx;
+  let html = `<button class="remove-btn" onclick="this.parentElement.remove()" title="Remove">&times;</button>`;
+  html += '<div class="field-row">';
+  fields.forEach((f, i) => {
+    if (i > 0 && i % 3 === 0) html += '</div><div class="field-row">';
+    html += `<div class="field"><label>${f.label}</label><input type="${f.type||'text'}" data-field="${f.key}" /></div>`;
+  });
+  html += '</div>';
+  item.innerHTML = html;
+  container.appendChild(item);
+}
+
+function addChild() {
+  makeRepeaterItem('childrenRepeater', [
+    {label:'Name',key:'name'},{label:'Sex',key:'sex'},{label:'Date of Birth',key:'dob',type:'date'},{label:'Address',key:'address'}
+  ], 'child');
+}
+
+function addStepChild() {
+  makeRepeaterItem('stepChildrenRepeater', [
+    {label:'Name',key:'name'},{label:'Sex',key:'sex'},{label:'Date of Birth',key:'dob',type:'date'},{label:'Address',key:'address'}
+  ], 'stepchild');
+}
+
+function addGrandchild() {
+  makeRepeaterItem('grandchildrenRepeater', [
+    {label:'Name',key:'name'},{label:'Sex',key:'sex'},{label:'Date of Birth',key:'dob',type:'date'},{label:'Parent',key:'parent'},{label:'Address',key:'address'}
+  ], 'grandchild');
+}
+
+function addGreatGrandchild() {
+  makeRepeaterItem('greatGrandchildrenRepeater', [
+    {label:'Name',key:'name'},{label:'Sex',key:'sex'},{label:'Date of Birth',key:'dob',type:'date'},{label:'Parent',key:'parent'},{label:'Address',key:'address'}
+  ], 'greatgrandchild');
+}
+
+function addDisinherit() {
+  makeRepeaterItem('disinheritRepeater', [
+    {label:'Name',key:'name'},{label:'Relationship',key:'relationship'},{label:'Address',key:'address'},{label:'Reason',key:'reason'}
+  ], 'disinherit');
+}
+
+function addRealEstate() {
+  makeRepeaterItem('realEstateRepeater', [
+    {label:'Address',key:'address'},{label:'Owner(s)',key:'owners'},{label:'Value',key:'value'}
+  ], 'realestate');
+}
+
+function addPossession() {
+  makeRepeaterItem('possessionsRepeater', [
+    {label:'Item',key:'item'},{label:'Location',key:'location'},{label:'Value',key:'value'}
+  ], 'possession');
+}
+
+function addBank() {
+  makeRepeaterItem('bankRepeater', [
+    {label:'Bank',key:'bank'},{label:'Type (Checking/Savings)',key:'type'},{label:'Approx. Value',key:'value'},{label:'Co-Owner',key:'coowner'}
+  ], 'bank');
+}
+
+function addInvestment() {
+  makeRepeaterItem('investRepeater', [
+    {label:'Description',key:'desc'},{label:'Value',key:'value'},{label:'Co-Owner',key:'coowner'},{label:'Beneficiary',key:'beneficiary'}
+  ], 'invest');
+}
+
+function addLifeIns() {
+  makeRepeaterItem('lifeInsRepeater', [
+    {label:'Company',key:'company'},{label:'Address',key:'address'},{label:'Policy #',key:'policy'},{label:'Beneficiaries',key:'beneficiaries'}
+  ], 'lifeins');
+}
+
+function addPension() {
+  makeRepeaterItem('pensionRepeater', [
+    {label:'Pension Company',key:'company'},{label:'Employer',key:'employer'},{label:'Beneficiaries',key:'beneficiaries'}
+  ], 'pension');
+}
+
+function addGift() {
+  makeRepeaterItem('giftsRepeater', [
+    {label:'Recipient Name',key:'name'},{label:'Relationship',key:'relationship'},{label:'Town/State',key:'town'},
+    {label:'Property Description',key:'property'},{label:'Secondary Beneficiary',key:'secondary'},{label:'Secondary Relationship',key:'secondaryRel'}
+  ], 'gift');
+}
+
+// === PDF EXPORT ===
+function getVal(id) { return document.getElementById(id) ? document.getElementById(id).value.trim() : ''; }
+function getRadio(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; }
+function getCheck(name) { return document.querySelector(`input[name="${name}"]:checked, input#${name}:checked`) ? 'Yes' : ''; }
+
+function getRepeaterData(containerId) {
+  const items = document.querySelectorAll(`#${containerId} .repeater-item`);
+  const data = [];
+  items.forEach(item => {
+    const entry = {};
+    item.querySelectorAll('[data-field]').forEach(inp => {
+      entry[inp.dataset.field] = inp.value.trim();
+    });
+    data.push(entry);
+  });
+  return data;
+}
+
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const W = doc.internal.pageSize.getWidth();
+  const margin = 56;
+  const contentW = W - margin * 2;
+  let y = 50;
+
+  function checkPage(need) {
+    if (y + need > 720) { doc.addPage(); y = 50; }
+  }
+
+  function sectionHeader(num, title) {
+    checkPage(40);
+    doc.setFillColor(107, 76, 59);
+    doc.circle(margin + 10, y + 5, 10, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(String(num), margin + 10, y + 8, { align: 'center' });
+    doc.setTextColor(107, 76, 59);
+    doc.setFontSize(14);
+    doc.text(title, margin + 26, y + 9);
+    y += 24;
+    doc.setDrawColor(201, 185, 154);
+    doc.line(margin, y, W - margin, y);
+    y += 12;
+    fieldLineAlt = false;
+  }
+
+  let fieldLineAlt = false;
+  function fieldLine(label, value) {
+    checkPage(18);
+    const rowH = 16;
+    const valX = margin + 160;
+
+    // alternating subtle band
+    if (fieldLineAlt) {
+      doc.setFillColor(245, 240, 232);
+      doc.rect(margin - 4, y - 10, contentW + 8, rowH, 'F');
+    }
+    fieldLineAlt = !fieldLineAlt;
+
+    // label
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(107, 76, 59);
+    doc.text(label.toUpperCase(), margin, y);
+
+    // dotted leader
+    const labelW = doc.getTextWidth(label.toUpperCase());
+    const dotsStart = margin + labelW + 6;
+    const dotsEnd = valX - 6;
+    if (dotsEnd > dotsStart) {
+      doc.setDrawColor(201, 185, 154);
+      doc.setLineDashPattern([1, 3], 0);
+      doc.setLineWidth(0.5);
+      doc.line(dotsStart, y - 2, dotsEnd, y - 2);
+      doc.setLineDashPattern([], 0);
+    }
+
+    // value
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(26, 26, 46);
+    const displayVal = value || 'N/A';
+    // wrap long values
+    const maxValW = W - margin - valX;
+    const valLines = doc.splitTextToSize(displayVal, maxValW);
+    valLines.forEach((vl, vi) => {
+      if (vi > 0) { checkPage(14); }
+      doc.text(vl, valX, y);
+      if (vi < valLines.length - 1) y += 13;
+    });
+    y += rowH;
+  }
+
+  function tableHeader(cols) {
+    checkPage(22);
+    doc.setFillColor(240, 235, 224);
+    doc.rect(margin, y - 10, contentW, 16, 'F');
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(107, 76, 59);
+    const cw = contentW / cols.length;
+    cols.forEach((c, i) => doc.text(c.toUpperCase(), margin + i * cw + 4, y));
+    y += 12;
+  }
+
+  function tableRow(values, cols) {
+    checkPage(16);
+    const cw = contentW / cols;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(26, 26, 46);
+    values.forEach((v, i) => doc.text(v || '', margin + i * cw + 4, y));
+    y += 14;
+  }
+
+  // Title
+  doc.setFillColor(26, 26, 46);
+  doc.rect(0, 0, W, 70, 'F');
+  doc.setTextColor(250, 249, 246);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Estate Planning Intake Form', margin, 38);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(200, 200, 200);
+  doc.text('Generated ' + new Date().toLocaleDateString(), margin, 55);
+  y = 90;
+
+  // 1
+  sectionHeader(1, 'General Information');
+  fieldLine('Full Name', [getVal('firstName'), getVal('middleName'), getVal('lastName')].filter(Boolean).join(' '));
+  fieldLine('Other Names', getVal('otherNames'));
+  fieldLine('Telephone', getVal('phone'));
+  fieldLine('Age', getVal('age'));
+  fieldLine('Date of Birth', getVal('dob'));
+  fieldLine('Sex', getRadio('sex'));
+
+  // 2
+  sectionHeader(2, 'Current Residence');
+  fieldLine('Address', [getVal('streetNum'), getVal('street')].filter(Boolean).join(' '));
+  fieldLine('City / State / Zip', [getVal('city'), getVal('state'), getVal('zip')].filter(Boolean).join(', '));
+  fieldLine('Dwelling Type', getRadio('dwelling'));
+  fieldLine('Jointly Owned', getRadio('joint'));
+  fieldLine('Co-owner Name', getVal('coOwnerName'));
+  fieldLine('Co-owner Address', getVal('coOwnerAddr'));
+
+  // 3
+  sectionHeader(3, 'Spouse Information');
+  fieldLine('Spouse Name', [getVal('spouseFirst'), getVal('spouseMiddle'), getVal('spouseLast')].filter(Boolean).join(' '));
+  fieldLine('Spouse Address', getVal('spouseAddr'));
+  fieldLine('Deceased', getVal('spouseDeceased'));
+  fieldLine('Ex-Spouse', getVal('exSpouse'));
+
+  // 4
+  const children = getRepeaterData('childrenRepeater');
+  sectionHeader(4, 'Children');
+  if (children.length) {
+    tableHeader(['Name','Sex','D.O.B.','Address']);
+    children.forEach(c => tableRow([c.name, c.sex, c.dob, c.address], 4));
+  } else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y += 14; }
+
+  const stepChildren = getRepeaterData('stepChildrenRepeater');
+  if (stepChildren.length) {
+    checkPage(30);
+    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46); doc.text('Step-Children', margin, y); y += 14;
+    tableHeader(['Name','Sex','D.O.B.','Address']);
+    stepChildren.forEach(c => tableRow([c.name, c.sex, c.dob, c.address], 4));
+  }
+  fieldLine('Treatment', getRadio('childTreatment') === 'same' ? 'Treat children & step-children the same' : 'Divide differently');
+  if (getVal('childDivision')) fieldLine('Specifics', getVal('childDivision'));
+
+  // 5
+  const gcs = getRepeaterData('grandchildrenRepeater');
+  sectionHeader(5, 'Grandchildren');
+  if (gcs.length) { tableHeader(['Name','Sex','D.O.B.','Parent','Address']); gcs.forEach(c => tableRow([c.name,c.sex,c.dob,c.parent,c.address],5)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  // 6
+  const ggcs = getRepeaterData('greatGrandchildrenRepeater');
+  sectionHeader(6, 'Great Grandchildren');
+  if (ggcs.length) { tableHeader(['Name','Sex','D.O.B.','Parent','Address']); ggcs.forEach(c => tableRow([c.name,c.sex,c.dob,c.parent,c.address],5)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  // 7
+  const dis = getRepeaterData('disinheritRepeater');
+  sectionHeader(7, 'Disinheritance');
+  if (dis.length) { tableHeader(['Name','Relationship','Address','Reason']); dis.forEach(d => tableRow([d.name,d.relationship,d.address,d.reason],4)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  // 8
+  sectionHeader(8, 'In Terrorem Clause');
+  fieldLine('Include?', getRadio('inTerrorem'));
+
+  // 9
+  sectionHeader(9, 'Executor');
+  fieldLine('Primary Name', getVal('execName'));
+  fieldLine('Primary Address', getVal('execAddr'));
+  fieldLine('Primary Phone', getVal('execPhone'));
+  fieldLine('Backup Name', getVal('execName2'));
+  fieldLine('Backup Address', getVal('execAddr2'));
+  fieldLine('Backup Phone', getVal('execPhone2'));
+
+  // 10
+  sectionHeader(10, 'Guardians');
+  fieldLine('Guardian 1 Name', getVal('guard1Name'));
+  fieldLine('Guardian 1 Addr', getVal('guard1Addr'));
+  fieldLine('Guardian 1 Phone', getVal('guard1Phone'));
+  fieldLine('Guardian 1 Rel.', getVal('guard1Rel'));
+  fieldLine('Guardian 2 Name', getVal('guard2Name'));
+  fieldLine('Guardian 2 Addr', getVal('guard2Addr'));
+  fieldLine('Guardian 2 Phone', getVal('guard2Phone'));
+  fieldLine('Guardian 2 Rel.', getVal('guard2Rel'));
+
+  // 11
+  sectionHeader(11, 'Trust');
+  fieldLine('Trustee 1 Name', getVal('trust1Name'));
+  fieldLine('Trustee 1 Addr', getVal('trust1Addr'));
+  fieldLine('Trustee 1 Phone', getVal('trust1Phone'));
+  fieldLine('Trustee 1 Rel.', getVal('trust1Rel'));
+  fieldLine('Trustee 2 Name', getVal('trust2Name'));
+  fieldLine('Trustee 2 Addr', getVal('trust2Addr'));
+  fieldLine('Trustee 2 Phone', getVal('trust2Phone'));
+  fieldLine('Trustee 2 Rel.', getVal('trust2Rel'));
+
+  // 12
+  sectionHeader(12, 'Bond');
+  fieldLine('Serve Without Bond?', getRadio('bond'));
+
+  // 13
+  sectionHeader(13, 'Assets');
+  const re = getRepeaterData('realEstateRepeater');
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46); checkPage(20); doc.text('Real Estate', margin, y); y+=14;
+  if (re.length) { tableHeader(['Address','Owner(s)','Value']); re.forEach(r => tableRow([r.address,r.owners,r.value],3)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  const pos = getRepeaterData('possessionsRepeater');
+  checkPage(20); doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46); doc.text('Personal Possessions', margin, y); y+=14;
+  if (pos.length) { tableHeader(['Item','Location','Value']); pos.forEach(p => tableRow([p.item,p.location,p.value],3)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  const banks = getRepeaterData('bankRepeater');
+  checkPage(20); doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46); doc.text('Bank Accounts', margin, y); y+=14;
+  if (banks.length) { tableHeader(['Bank','Type','Value','Co-Owner']); banks.forEach(b => tableRow([b.bank,b.type,b.value,b.coowner],4)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  const invs = getRepeaterData('investRepeater');
+  checkPage(20); doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46); doc.text('Investments', margin, y); y+=14;
+  if (invs.length) { tableHeader(['Description','Value','Co-Owner','Beneficiary']); invs.forEach(i => tableRow([i.desc,i.value,i.coowner,i.beneficiary],4)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  const lis = getRepeaterData('lifeInsRepeater');
+  checkPage(20); doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46); doc.text('Life Insurance', margin, y); y+=14;
+  if (lis.length) { tableHeader(['Company','Address','Policy #','Beneficiaries']); lis.forEach(l => tableRow([l.company,l.address,l.policy,l.beneficiaries],4)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  const pens = getRepeaterData('pensionRepeater');
+  checkPage(20); doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46); doc.text('Pension', margin, y); y+=14;
+  if (pens.length) { tableHeader(['Company','Employer','Beneficiaries']); pens.forEach(p => tableRow([p.company,p.employer,p.beneficiaries],3)); }
+  else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  // 14
+  sectionHeader(14, 'Future Inheritance');
+  fieldLine('Expect inheritance?', getRadio('futureInherit'));
+
+  // 15
+  sectionHeader(15, 'Property Division');
+  const mc = [];
+  for (let i = 1; i <= 5; i++) if (document.querySelector(`input[name="married${i}"]:checked`)) mc.push(i);
+  fieldLine('Married options', mc.length ? mc.join(', ') : 'None selected');
+  fieldLine('Alternate (married)', getVal('marriedAlt'));
+  fieldLine('Charity (married)', getVal('marriedCharity'));
+  const uc = [];
+  for (let i = 1; i <= 4; i++) if (document.querySelector(`input[name="unmarried${i}"]:checked`)) uc.push(i);
+  fieldLine('Unmarried options', uc.length ? uc.join(', ') : 'None selected');
+  fieldLine('Alternate (unmarried)', getVal('unmarriedAlt'));
+  fieldLine('Charity (unmarried)', getVal('unmarriedCharity'));
+
+  // 16
+  sectionHeader(16, 'Custom Distribution');
+  const cd = getVal('customDistribution');
+  if (cd) {
+    checkPage(40);
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(26,26,46);
+    const lines = doc.splitTextToSize(cd, contentW);
+    lines.forEach(l => { checkPage(14); doc.text(l, margin, y); y += 13; });
+  } else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None', margin, y); y+=14; }
+
+  // 17
+  const gifts = getRepeaterData('giftsRepeater');
+  sectionHeader(17, 'Specific Gifts');
+  if (gifts.length) {
+    gifts.forEach((g, i) => {
+      checkPage(60);
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(26,26,46);
+      doc.text(`Gift ${i+1}`, margin, y); y += 14;
+      fieldLine('Recipient', g.name);
+      fieldLine('Relationship', g.relationship);
+      fieldLine('Town/State', g.town);
+      fieldLine('Property', g.property);
+      fieldLine('Secondary Benef.', g.secondary);
+      fieldLine('Secondary Rel.', g.secondaryRel);
+    });
+  } else { doc.setFontSize(9); doc.setTextColor(150,150,150); doc.text('None listed', margin, y); y+=14; }
+
+  // 18
+  sectionHeader(18, 'Living Will');
+  fieldLine('Living Will?', getRadio('livingWill'));
+  fieldLine('Resuscitate?', getRadio('resuscitate'));
+  fieldLine('Life Support?', getRadio('lifeSupport'));
+  fieldLine('Duration', getRadio('lifeSupportDur'));
+  fieldLine('Other Duration', getVal('lifeSupportOther'));
+  fieldLine('Pain Meds?', getRadio('painMeds'));
+  fieldLine('Transfusions?', getRadio('transfusions'));
+  fieldLine('Decision Maker', getVal('healthName'));
+  fieldLine('DM Address', getVal('healthAddr'));
+  fieldLine('DM Relationship', getVal('healthRel'));
+  fieldLine('Backup DM', getVal('healthName2'));
+  fieldLine('Backup Address', getVal('healthAddr2'));
+  fieldLine('Backup Rel.', getVal('healthRel2'));
+
+  // 19
+  sectionHeader(19, 'Final Wishes');
+  fieldLine('Cremation', document.getElementById('optCremation').checked ? 'Yes' : 'No');
+  fieldLine('Ashes Disposal', document.getElementById('optAshes').checked ? ('Yes — ' + (getVal('ashesDisposal') || 'not specified')) : 'No');
+  fieldLine('Ceremony', document.getElementById('optCeremony').checked ? ('Yes — ' + (getVal('ceremony') || 'not specified')) : 'No');
+  fieldLine('Burial', document.getElementById('optBurial').checked ? ('Yes — ' + [getVal('cemetery'), getVal('cemeteryLoc')].filter(Boolean).join(', ') || 'not specified') : 'No');
+  fieldLine('Military Ceremony', document.getElementById('optMilitary').checked ? ('Yes — ' + [getVal('milBranch'), getVal('milCeremony')].filter(Boolean).join(', ') || 'not specified') : 'No');
+  const ow = getVal('otherWishes');
+  if (ow) {
+    checkPage(40);
+    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(26,26,46);
+    doc.splitTextToSize(ow, contentW).forEach(l => { checkPage(14); doc.text(l, margin, y); y += 13; });
+  }
+
+  // Footer on each page
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(180, 180, 180);
+    doc.text(`Page ${i} of ${totalPages}`, W / 2, 760, { align: 'center' });
+  }
+
+  doc.save('Estate_Planning_Intake.pdf');
+}
+</script>
+</body>
+</html>
